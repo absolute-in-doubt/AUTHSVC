@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: autservice
+
+
+application:
+  session:
+    lengthMin: 10080
+  security:
+    paths:
+      publicPaths:
+        - /api/v1/public/login
+        - /api/v1/public/register
+      userPaths:
+        - /api/v1/user/logout
+      adminPaths:
+        - /api/v1/admin/session/invalidate
+        - /api/v1/admin/register
+    jwks:
+      - kid: ${JWK_ID}
+        kty: ${JWK_TYPE}
+        alg: ${JWK_ALG}
+        use: "sig"
+        n: ${JWK_N}
+        e: ${JWK_E}
+        d: ${JWK_D}
+        p: ${JWK_P}
+        q: ${JWK_Q}
+        dp: ${JWK_DP}
+        dq: ${JWK_DQ}
+        qi: ${JWK_QI}

@@ -23,7 +23,10 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class UserCredentials {
 
+    @SequenceGenerator(name = "user_credentials_gen", sequenceName = "user_credentials_seq")
+
     @Id
+    @GeneratedValue(generator = "user_credentials_gen")
     @Column(name="user_id")
     private Long userId;
 

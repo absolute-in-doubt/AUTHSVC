@@ -4,9 +4,9 @@ spring:
 
 
 application:
-  session:
-    lengthMin: 10080
   security:
+    sessionLengthMinutes: 10080
+    jwtLifeMinutes: 180
     paths:
       publicPaths:
         - /api/v1/public/login

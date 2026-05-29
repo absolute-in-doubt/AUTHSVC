@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Component
 public class ExpiresAtSessionEntityListener {
 
-    @Value("${application.session.lengthMinutes}")
+    @Value("${application.security.sessionLengthMinutes}")
     private long sessionLengthMinutes;
 
     @PrePersist

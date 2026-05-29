@@ -26,6 +26,9 @@ public class CreateUserOutboxEntity {
     @Enumerated(EnumType.STRING)
     private OutboxEventStatus status;
 
+    @Column(name = "retries_counter")
+    private int retriesCounter;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

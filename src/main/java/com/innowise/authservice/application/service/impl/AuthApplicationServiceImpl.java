@@ -53,12 +53,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         if (the counter is greater than some threshold) mark the outbox event as DEAD_LETTER and the UserCredentials as FAILED_TO_ACTIVATE
          */
 
-        UserCredentials userCredentials = UserCredentials.builder()
-                .login(requestDto.login())
-                .passwordHash(passwordEncoder.encode(requestDto.password()))
-                .roles(List.of(Role.USER))
-                .active(true)
-                .build();
+
 
 
         return null;

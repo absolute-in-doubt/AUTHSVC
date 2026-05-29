@@ -1,4 +1,4 @@
-package com.innowise.authservice.domain.model;
+package com.innowise.authservice.infrastructure.outbox.model;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "create_user_outbox")
 @EntityListeners(AuditingEntityListener.class)
-public class CreateUserOutboxEvent {
+public class CreateUserOutboxEntity {
     @Id
     @Column(name = "user_id")
     private Long userId;   //Idempotency key

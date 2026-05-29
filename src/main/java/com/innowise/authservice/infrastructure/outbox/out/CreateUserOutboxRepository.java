@@ -1,6 +1,6 @@
-package com.innowise.authservice.domain.port.out;
+package com.innowise.authservice.infrastructure.outbox.out;
 
-import com.innowise.authservice.domain.model.CreateUserOutboxEvent;
+import com.innowise.authservice.infrastructure.outbox.model.CreateUserOutboxEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,11 +8,11 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CreateUserOutboxRepository extends JpaRepository<CreateUserOutboxEvent, Long> {
+public interface CreateUserOutboxRepository extends JpaRepository<CreateUserOutboxEntity, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT * FROM create_user_outbox WHERE status = 'UNPROCESSED' FOR UPDATE SKIP LOCKED
             """)
-    Optional<CreateUserOutboxEvent> findUnprocessedAndUnlocked();
+    Optional<CreateUserOutboxEntity> findUnprocessedAndUnlocked();
 
 }

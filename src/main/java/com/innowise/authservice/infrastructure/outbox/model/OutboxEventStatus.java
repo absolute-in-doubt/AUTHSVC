@@ -1,4 +1,4 @@
-package com.innowise.authservice.domain.model;
+package com.innowise.authservice.infrastructure.outbox.model;
 
 public enum OutboxEventStatus {
     UNPROCESSED,

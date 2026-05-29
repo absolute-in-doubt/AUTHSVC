@@ -30,6 +30,8 @@ public class UserCredentials {
     @Column(columnDefinition = "jsonb")
     private List<Role> roles;
 
+    private boolean active;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -11,11 +11,29 @@ public interface AuthApplicationService {
 
     AccessTokenResponseDto refresh(RefreshRequestDto refreshRequestDto);
 
-    //void logOut()
+    //Services (also public)
+
+    AccessTokenResponseDto authenticate(ServiceAuthenticationRequestDto requestDto);
+
+    //User
+
+    void logOut(Long userId);
 
     //Admin
 
     void deactivateSessionById(Long sessionId);
 
-    void activateSessionById(Long sessionId);
+    //activating sessions is impossible as it'll make the expired sessions eternally alive
+
+    void registerAdmin(RegisterRequestDto registerRequestDto);
+
+
+
+    //User service calls
+
+    void activateUserCredentials(Long userId);
+
+    void deactivateUserCredentials(Long userId);
+
+
 }

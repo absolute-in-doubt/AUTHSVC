@@ -32,4 +32,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Application ###
 jwks.env
+client-secrets.env

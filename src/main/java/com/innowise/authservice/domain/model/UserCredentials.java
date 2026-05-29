@@ -1,12 +1,15 @@
 package com.innowise.authservice.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +18,9 @@ import java.util.List;
 @Table(name="user_credentials")
 @NoArgsConstructor
 @Data
+@Builder
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class UserCredentials {
 
     @Id

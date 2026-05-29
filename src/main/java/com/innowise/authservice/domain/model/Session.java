@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EntityListeners(value = {AuditingEntityListener.class, ExpiresAtSessionEntityListener.class})
 @Data
+@Builder
+@AllArgsConstructor
 public class Session {
     @SequenceGenerator(name = "session_id_gen", sequenceName = "session_id_seq")
 

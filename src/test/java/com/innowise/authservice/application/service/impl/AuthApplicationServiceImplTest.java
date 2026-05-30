@@ -10,6 +10,7 @@ import com.innowise.authservice.domain.model.UserCredentials;
 import com.innowise.authservice.domain.model.UserStatus;
 import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
 import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
+import com.innowise.authservice.domain.model.exception.UserCreationPendingException;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
 import org.junit.jupiter.api.Test;
@@ -122,7 +123,7 @@ class AuthApplicationServiceImplTest {
     }
 
     @Test
-    void logIn_ShouldReturnTokens_WhenCredentialsValid() {
+    void logIn_ShouldReturnTokens_WhenCredentialsValid() throws IncorrectLoginOrPasswordException, UserCreationPendingException {
         // Given
         LogInRequestDto request = new LogInRequestDto("testuser", "password123");
         String ipAddress = "192.168.1.1";
@@ -172,7 +173,7 @@ class AuthApplicationServiceImplTest {
     }
 
     @Test
-    void logIn_ShouldDeactivateExistingSession_WhenSameIpAndUserAgent() {
+    void logIn_ShouldDeactivateExistingSession_WhenSameIpAndUserAgent() throws IncorrectLoginOrPasswordException, UserCreationPendingException {
         // Given
         LogInRequestDto request = new LogInRequestDto("testuser", "password123");
         String ipAddress = "192.168.1.1";
@@ -191,6 +192,7 @@ class AuthApplicationServiceImplTest {
                 .login("testuser")
                 .passwordHash("encodedPassword")
                 .roles(List.of(Role.USER))
+                .status(UserStatus.ACTIVE)
                 .build();
 
         when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
@@ -211,5 +213,28 @@ class AuthApplicationServiceImplTest {
 
         // Then
         verify(sessionRepository).setActive(1L, false);
+    }
+
+    @Test
+    void logIn_ShouldThrowException_WhenUserIsPending() throws IncorrectLoginOrPasswordException, UserCreationPendingException {
+        // Given
+        LogInRequestDto request = new LogInRequestDto("testuser", "password123");
+        String ipAddress = "192.168.1.1";
+        String userAgent = "Chrome";
+
+
+        UserCredentials userCredentials = UserCredentials.builder()
+                .userId(1L)
+                .login("testuser")
+                .passwordHash("encodedPassword")
+                .roles(List.of(Role.USER))
+                .status(UserStatus.PENDING)
+                .build();
+
+        when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
+
+        assertThrows(UserCreationPendingException.class,
+                () -> authService.logIn(request, ipAddress, userAgent));
+
     }
 }

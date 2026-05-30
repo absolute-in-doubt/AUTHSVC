@@ -8,10 +8,10 @@ import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.Session;
 import com.innowise.authservice.domain.model.UserCredentials;
 import com.innowise.authservice.domain.model.UserStatus;
-import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
-import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
+import com.innowise.authservice.domain.model.exception.*;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
+import liquibase.license.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Example;
@@ -99,8 +99,9 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         return new TwoTokensResponseDto(accessToken, refreshToken);
     }
 
+    @Transactional
     @Override
-    public TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent) {
+    public TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent) throws IncorrectLoginOrPasswordException, UserCreationPendingException {
 
         List<Role> roles = List.of(Role.USER);
         String refreshToken = UUID.randomUUID().toString();
@@ -108,7 +109,11 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         UserCredentials userCredentials = userCredentialsRepository.findByLogin(logInRequestDto.login())
                 .orElseThrow(() ->  new IncorrectLoginOrPasswordException(logInRequestDto.login()));
 
-        passwordEncoder.matches(logInRequestDto.password(), userCredentials.getPasswordHash());
+        if(userCredentials.getStatus().equals(UserStatus.PENDING))
+            throw new UserCreationPendingException(userCredentials.getUserId());
+
+        if(!passwordEncoder.matches(logInRequestDto.password(), userCredentials.getPasswordHash()))
+            throw new IncorrectLoginOrPasswordException(logInRequestDto.login());
 
         sessionRepository.findByIpAddressAndUserAgent(ipAddress, userAgent)
                 .ifPresent(existingSession -> sessionRepository.setActive(existingSession.getSessionId(), false));
@@ -134,9 +139,32 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         return new TwoTokensResponseDto(accessToken, refreshToken);
     }
 
+    /*
+    Creates a new refresh token each time a new access token is requested
+     */
+    @Transactional
     @Override
-    public AccessTokenResponseDto refresh(RefreshRequestDto refreshRequestDto) {
-        return null;
+    public TwoTokensResponseDto refresh(RefreshRequestDto refreshRequestDto) throws ActiveSessionNotFoundException {
+
+        String refreshTokenHash = passwordEncoder.encode(refreshRequestDto.refreshToken());
+
+        Session session = sessionRepository.findByRefreshTokenHashAndActiveTrue(refreshTokenHash)
+                .orElseThrow(() -> new ActiveSessionNotFoundException(refreshTokenHash));
+
+        UserCredentials userCredentials = userCredentialsRepository.findById(session.getUserId())
+                .orElseThrow(() -> new UserCredentialsNotFoundException(session.getUserId()));
+
+        String newRefreshToken = UUID.randomUUID().toString();
+        sessionRepository.updateRefreshTokenHash(session.getSessionId(), passwordEncoder.encode(newRefreshToken));
+
+        String accessToken = jwtService.createJwt(
+                session.getUserId(),
+                userCredentials.getLogin(),
+                userCredentials.getRoles(),
+                session.getExpiresAt()
+        ).getTokenValue();
+
+        return new TwoTokensResponseDto(accessToken, newRefreshToken);
     }
 
 

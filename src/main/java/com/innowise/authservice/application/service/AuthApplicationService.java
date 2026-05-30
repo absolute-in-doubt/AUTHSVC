@@ -1,16 +1,19 @@
 package com.innowise.authservice.application.service;
 
 import com.innowise.authservice.application.dto.*;
+import com.innowise.authservice.domain.model.exception.ActiveSessionNotFoundException;
+import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
 import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
+import com.innowise.authservice.domain.model.exception.UserCreationPendingException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 public interface AuthApplicationService {
 
     TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent) throws LoginIsAlreadyTakenException;
 
-    TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent);
+    TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent) throws IncorrectLoginOrPasswordException, UserCreationPendingException;
 
-    AccessTokenResponseDto refresh(RefreshRequestDto refreshRequestDto);
+    TwoTokensResponseDto refresh(RefreshRequestDto refreshRequestDto) throws ActiveSessionNotFoundException;
 
     //User
 

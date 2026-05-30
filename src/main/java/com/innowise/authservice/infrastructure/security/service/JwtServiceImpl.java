@@ -34,7 +34,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
 
-    public Jwt createJwt(Long userId, String login, List<Role> roles, LocalDateTime sessionExpiresAt){
+    public Jwt createJwt(String userId, String login, List<Role> roles, LocalDateTime sessionExpiresAt){
         Collection<GrantedAuthority> authorities = roles.stream()
                 .map(Role::toString)
                 .map(SimpleGrantedAuthority::new)
@@ -44,7 +44,7 @@ public class JwtServiceImpl implements JwtService {
 
 
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
-                .subject(userId.toString())
+                .subject(userId)
                 .claim(JwtClaim.LOGIN, login)
                 .claim(JwtClaim.ROLES, authorities)
                 .expiresAt(expiresAt.atZone(ZoneId.systemDefault()).toInstant())

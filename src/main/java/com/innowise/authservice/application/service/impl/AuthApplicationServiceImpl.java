@@ -186,7 +186,6 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     @Override
     public void registerAdmin(RegisterRequestDto registerRequestDto) throws LoginIsAlreadyTakenException {
         List<Role> roles = List.of(Role.ADMIN);
-        String refreshToken = UUID.randomUUID().toString();
 
         UserCredentials userCredentials = UserCredentials.builder()
                 .login(registerRequestDto.login())

@@ -9,7 +9,8 @@ import java.util.Set;
 public record SecurityProperties(
         //session length is injected via @Value
         Paths paths,
-        List<JwkKey> jwks
+        List<JwkKey> jwks,
+        List<Service> services
         ) {
 
 
@@ -31,5 +32,10 @@ public record SecurityProperties(
             String dp,
             String dq,
             String qi
+    ) {}
+
+    public record Service(
+            String clientId,
+            String clientSecret
     ) {}
 }

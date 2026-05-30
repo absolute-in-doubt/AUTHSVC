@@ -143,4 +143,9 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+    @Bean
+    public List<SecurityProperties.Service> serviceCredentials(){
+        return properties.services();
+    }
 }

@@ -6,6 +6,7 @@ spring:
 application:
   security:
     sessionLengthMinutes: 10080
+    serviceJwtLifeMinutes: 180
     jwtLifeMinutes: 180
     paths:
       publicPaths:
@@ -29,3 +30,6 @@ application:
         dp: ${JWK_DP}
         dq: ${JWK_DQ}
         qi: ${JWK_QI}
+    services:
+      - clientId: ${USRSVC_CLIENT_ID}
+        clientSecret: ${USRSVC_CLIENT_SECRET}

@@ -1,5 +1,6 @@
 package com.innowise.authservice.infrastructure.security.service;
 
+import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.domain.security.model.JwtUserDetails;
@@ -13,14 +14,13 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
 
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;

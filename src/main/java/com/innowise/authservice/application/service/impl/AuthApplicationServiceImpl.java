@@ -2,6 +2,7 @@ package com.innowise.authservice.application.service.impl;
 
 import com.innowise.authservice.application.dto.*;
 import com.innowise.authservice.application.service.AuthApplicationService;
+import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.event.CreateUserEvent;
 import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.Session;
@@ -9,9 +10,7 @@ import com.innowise.authservice.domain.model.UserCredentials;
 import com.innowise.authservice.domain.model.UserStatus;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
-import com.innowise.authservice.infrastructure.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

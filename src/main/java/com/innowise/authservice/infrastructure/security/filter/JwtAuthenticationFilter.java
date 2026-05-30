@@ -3,7 +3,7 @@ package com.innowise.authservice.infrastructure.security.filter;
 import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
-import com.innowise.authservice.infrastructure.security.service.JwtService;
+import com.innowise.authservice.infrastructure.security.service.JwtServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final DeviceDetailsResolver deviceDetailsResolver;
 
-    private final JwtService jwtService;
+    private final JwtServiceImpl jwtServiceImpl;
 
     @Value("${application.filter.path.public}")
     private Set<String> publicPaths;
@@ -60,12 +60,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
             }
 
-            Jwt jwt = jwtService.decode(accessToken);
-            if(!jwtService.isTokenValid(jwt)){
+            Jwt jwt = jwtServiceImpl.decode(accessToken);
+            if(!jwtServiceImpl.isTokenValid(jwt)){
                 throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
             }
 
-            JwtAuthenticationToken jwtAuthenticationToken = jwtService.convert(jwt);
+            JwtAuthenticationToken jwtAuthenticationToken = jwtServiceImpl.convert(jwt);
             jwtAuthenticationToken.setDetails(deviceDetails);
             SecurityContextHolder.getContext().setAuthentication(jwtAuthenticationToken);
         }

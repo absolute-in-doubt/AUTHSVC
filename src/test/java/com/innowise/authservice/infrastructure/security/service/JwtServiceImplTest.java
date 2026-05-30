@@ -10,7 +10,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JwtServiceTest {
+class JwtServiceImplTest {
 
     {
 

@@ -1,6 +1,7 @@
 package com.innowise.authservice.domain.port.out;
 
 import com.innowise.authservice.domain.model.UserCredentials;
+import com.innowise.authservice.domain.model.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,6 @@ public interface UserCredentialsRepository extends JpaRepository<UserCredentials
     Optional<UserCredentials> findByLogin(String login);
 
     @Modifying
-    @Query("UPDATE UserCredentials uc SET uc.active = :active WHERE uc.userId = :userId")
-    void setActiveByUserId(@Param("userId") Long userId, @Param("active") boolean active);
+    @Query("UPDATE UserCredentials uc SET uc.status = : WHERE uc.userId = :userId")
+    void setStatusByUserId(@Param("userId") Long userId, @Param("status") UserStatus status);
 }

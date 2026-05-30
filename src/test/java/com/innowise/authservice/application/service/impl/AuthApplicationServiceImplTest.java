@@ -8,9 +8,7 @@ import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.Session;
 import com.innowise.authservice.domain.model.UserCredentials;
 import com.innowise.authservice.domain.model.UserStatus;
-import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
-import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
-import com.innowise.authservice.domain.model.exception.UserCreationPendingException;
+import com.innowise.authservice.domain.model.exception.*;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
 import org.junit.jupiter.api.Test;
@@ -65,10 +63,10 @@ class AuthApplicationServiceImplTest {
         when(userCredentialsRepository.existsByLogin("testuser")).thenReturn(false);
         when(userCredentialsRepository.save(any(UserCredentials.class)))
                 .thenAnswer(inv -> {
-            UserCredentials uc = inv.getArgument(0);
-            uc.setUserId(1L);
-            return uc;
-        });
+                    UserCredentials uc = inv.getArgument(0);
+                    uc.setUserId(1L);
+                    return uc;
+                });
         when(sessionRepository.save(any(Session.class))).thenAnswer(inv -> {
             Session s = inv.getArgument(0);
             s.setSessionId(1L);
@@ -236,5 +234,162 @@ class AuthApplicationServiceImplTest {
         assertThrows(UserCreationPendingException.class,
                 () -> authService.logIn(request, ipAddress, userAgent));
 
+    }
+
+    // Add to existing AuthApplicationServiceImplTest class
+
+    @Test
+    void refresh_ShouldReturnNewTokens_WhenRefreshTokenValid() throws ActiveSessionNotFoundException, UserCredentialsNotFoundException {
+        String oldRefreshToken = "oldToken";
+        String oldRefreshTokenHash = "hashedOldToken";
+        String newRefreshTokenHash = "hashedNewToken";
+
+        Session session = Session.builder()
+                .sessionId(1L)
+                .userId(1L)
+                .refreshTokenHash(oldRefreshTokenHash)
+                .active(true)
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+
+        UserCredentials userCredentials = UserCredentials.builder()
+                .userId(1L)
+                .login("testuser")
+                .roles(List.of(Role.USER))
+                .build();
+
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn(oldRefreshTokenHash)
+                .thenReturn(newRefreshTokenHash);
+
+        when(sessionRepository.findByRefreshTokenHashAndActiveTrue(oldRefreshTokenHash))
+                .thenReturn(Optional.of(session));
+        when(userCredentialsRepository.findById(1L)).thenReturn(Optional.of(userCredentials));
+        when(jwtService.createJwt(anyLong(), anyString(), anyList(), any(LocalDateTime.class)))
+                .thenReturn(jwt);
+        when(jwt.getTokenValue()).thenReturn("newAccessToken");
+
+        TwoTokensResponseDto result = authService.refresh(new RefreshRequestDto(oldRefreshToken));
+
+        assertEquals("newAccessToken", result.accessToken());
+        assertNotNull(result.refreshToken());
+        verify(sessionRepository).updateRefreshTokenHash(1L, newRefreshTokenHash);
+    }
+
+
+    @Test
+    void refresh_ShouldThrowException_WhenSessionNotFound() {
+        // Given
+        String refreshToken = "invalidToken";
+        String refreshTokenHash = "hashedInvalid";
+
+        when(passwordEncoder.encode(refreshToken)).thenReturn(refreshTokenHash);
+        when(sessionRepository.findByRefreshTokenHashAndActiveTrue(refreshTokenHash))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ActiveSessionNotFoundException.class,
+                () -> authService.refresh(new RefreshRequestDto(refreshToken)));
+    }
+
+
+    @Test
+    void refresh_ShouldThrowException_WhenUserCredentialsNotFound() {
+        // Given
+        String refreshToken = "validToken";
+        String refreshTokenHash = "hashedValid";
+        Session session = Session.builder().sessionId(1L).userId(999L).build();
+
+        when(passwordEncoder.encode(refreshToken)).thenReturn(refreshTokenHash);
+        when(sessionRepository.findByRefreshTokenHashAndActiveTrue(refreshTokenHash))
+                .thenReturn(Optional.of(session));
+        when(userCredentialsRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(UserCredentialsNotFoundException.class,
+                () -> authService.refresh(new RefreshRequestDto(refreshToken)));
+    }
+
+
+    @Test
+    void logOut_ShouldDeactivateAllUserSessions() {
+        // When
+        authService.logOut(1L);
+
+        // Then
+        verify(sessionRepository).setActiveFalseByUserId(1L);
+    }
+
+    @Test
+    void deactivateSessionById_ShouldDeactivateSession() {
+        // When
+        authService.deactivateSessionById(1L);
+
+        // Then
+        verify(sessionRepository).setActive(1L, false);
+    }
+
+    @Test
+    void registerAdmin_ShouldCreateAdminUser() throws LoginIsAlreadyTakenException {
+        // Given
+        RegisterRequestDto request = new RegisterRequestDto(
+                "admin", "admin123", "Admin", "User",
+                LocalDate.of(1990, 1, 1), "admin@example.com"
+        );
+
+        when(passwordEncoder.encode("admin123")).thenReturn("encodedAdmin");
+        when(userCredentialsRepository.existsByLogin("admin")).thenReturn(false);
+        when(userCredentialsRepository.save(any(UserCredentials.class))).thenAnswer(inv -> {
+            UserCredentials uc = inv.getArgument(0);
+            uc.setUserId(1L);
+            return uc;
+        });
+
+        // When
+        authService.registerAdmin(request);
+
+        // Then
+        verify(userCredentialsRepository).save(argThat(uc ->
+                uc.getLogin().equals("admin") &&
+                        uc.getPasswordHash().equals("encodedAdmin") &&
+                        uc.getRoles().equals(List.of(Role.ADMIN)) &&
+                        uc.getStatus() == UserStatus.PENDING
+        ));
+        verify(eventPublisher).publishEvent((Object) argThat(e ->
+                e instanceof CreateUserEvent ce && ce.userId().equals(1L)
+        ));
+
+    }
+
+    @Test
+    void registerAdmin_ShouldThrowException_WhenLoginTaken() {
+        // Given
+        RegisterRequestDto request = new RegisterRequestDto(
+                "admin", "admin123", "Admin", "User",
+                LocalDate.of(1990, 1, 1), "admin@example.com"
+        );
+
+        when(userCredentialsRepository.existsByLogin("admin")).thenReturn(true);
+
+        // When & Then
+        assertThrows(LoginIsAlreadyTakenException.class,
+                () -> authService.registerAdmin(request));
+    }
+
+    @Test
+    void activateUserCredentials_ShouldSetUserActive() {
+        // When
+        authService.activateUserCredentials(1L);
+
+        // Then
+        verify(userCredentialsRepository).setStatusByUserId(1L, UserStatus.ACTIVE);
+    }
+
+    @Test
+    void deactivateUserCredentials_ShouldSetUserInactive() {
+        // When
+        authService.deactivateUserCredentials(1L);
+
+        // Then
+        verify(userCredentialsRepository).setStatusByUserId(1L, UserStatus.DEACTIVATED);
     }
 }

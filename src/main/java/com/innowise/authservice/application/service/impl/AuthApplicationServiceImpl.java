@@ -13,6 +13,7 @@ import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
 import liquibase.license.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthApplicationServiceImpl implements AuthApplicationService {
@@ -155,6 +157,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
                 .orElseThrow(() -> new UserCredentialsNotFoundException(session.getUserId()));
 
         String newRefreshToken = UUID.randomUUID().toString();
+        log.trace("New refresh token: {}", newRefreshToken);
         sessionRepository.updateRefreshTokenHash(session.getSessionId(), passwordEncoder.encode(newRefreshToken));
 
         String accessToken = jwtService.createJwt(
@@ -209,11 +212,11 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     @Transactional
     @Override
     public void activateUserCredentials(Long userId) {
-        userCredentialsRepository.setActiveByUserId(userId, true);
+        userCredentialsRepository.setStatusByUserId(userId, UserStatus.ACTIVE);
     }
 
     @Override
     public void deactivateUserCredentials(Long userId) {
-        userCredentialsRepository.setActiveByUserId(userId, false);
+        userCredentialsRepository.setStatusByUserId(userId, UserStatus.DEACTIVATED);
     }
 }

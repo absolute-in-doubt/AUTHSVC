@@ -28,10 +28,10 @@ public class Session {
     @Column(name = "refresh_token_hash")
     private String refreshTokenHash;
     @Column(name = "ip_address")
-    private String ipAddress;
-    @Column(name = "user_agent")
-    private String userAgent;
-    private boolean active;
+    private String ipAddress; //I thought they would be useful while designing
+    @Column(name = "user_agent") //But turns out they are almost useless
+    private String userAgent; //"But who doesn't like to spy on users, you know"
+    private boolean active; //                           @Mark Zuckerberg
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

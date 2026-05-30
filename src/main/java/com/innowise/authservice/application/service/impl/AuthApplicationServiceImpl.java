@@ -8,15 +8,19 @@ import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.Session;
 import com.innowise.authservice.domain.model.UserCredentials;
 import com.innowise.authservice.domain.model.UserStatus;
+import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
+import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,7 +51,8 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
 
     @Override
     @Transactional
-    public TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent) {
+    public TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent)
+            throws LoginIsAlreadyTakenException {
 
         List<Role> roles = List.of(Role.USER);
         String refreshToken = UUID.randomUUID().toString();
@@ -59,11 +64,14 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
                 .status(UserStatus.PENDING)
                 .build();
 
+        if(userCredentialsRepository.existsByLogin(requestDto.login()))
+            throw new LoginIsAlreadyTakenException(requestDto.login());
+
         userCredentials = userCredentialsRepository.save(userCredentials);
 
 
 
-        Session session = Session.builder()    //NOTE: expiresAt is ste in ExpiresAtSessionEventListener
+        Session session = Session.builder()    //NOTE: expiresAt is set in ExpiresAtSessionEventListener
                 .userId(userCredentials.getUserId())
                 .refreshTokenHash(passwordEncoder.encode(refreshToken))
                 .ipAddress(ipAddress)
@@ -92,8 +100,38 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     }
 
     @Override
-    public TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto) {
-        return null;
+    public TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent) {
+
+        List<Role> roles = List.of(Role.USER);
+        String refreshToken = UUID.randomUUID().toString();
+
+        UserCredentials userCredentials = userCredentialsRepository.findByLogin(logInRequestDto.login())
+                .orElseThrow(() ->  new IncorrectLoginOrPasswordException(logInRequestDto.login()));
+
+        passwordEncoder.matches(logInRequestDto.password(), userCredentials.getPasswordHash());
+
+        sessionRepository.findByIpAddressAndUserAgent(ipAddress, userAgent)
+                .ifPresent(existingSession -> sessionRepository.setActive(existingSession.getSessionId(), false));
+
+
+        Session session = Session.builder()    //NOTE: expiresAt is set in ExpiresAtSessionEventListener
+                .userId(userCredentials.getUserId())
+                .refreshTokenHash(passwordEncoder.encode(refreshToken))
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .active(true)
+                .build();
+
+        sessionRepository.save(session);
+
+        String accessToken = jwtService.createJwt(
+                userCredentials.getUserId(),
+                logInRequestDto.login(),
+                roles,
+                session.getExpiresAt()
+        ).getTokenValue();
+
+        return new TwoTokensResponseDto(accessToken, refreshToken);
     }
 
     @Override
@@ -101,10 +139,6 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         return null;
     }
 
-    @Override
-    public AccessTokenResponseDto authenticate(ServiceAuthenticationRequestDto requestDto) {
-        return null;
-    }
 
     @Override
     public void logOut(Long userId) {

@@ -1,19 +1,16 @@
 package com.innowise.authservice.application.service;
 
 import com.innowise.authservice.application.dto.*;
+import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 public interface AuthApplicationService {
 
-    TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent);
+    TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent) throws LoginIsAlreadyTakenException;
 
-    TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto);
+    TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent);
 
     AccessTokenResponseDto refresh(RefreshRequestDto refreshRequestDto);
-
-    //Services (also public)
-
-    AccessTokenResponseDto authenticate(ServiceAuthenticationRequestDto requestDto);
 
     //User
 

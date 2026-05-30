@@ -168,28 +168,52 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     }
 
 
+    @Transactional
     @Override
     public void logOut(Long userId) {
-
+        sessionRepository.setActiveFalseByUserId(userId);
     }
 
+    @Transactional
     @Override
     public void deactivateSessionById(Long sessionId) {
-
+        sessionRepository.setActive(sessionId, false);
     }
 
     @Override
-    public void registerAdmin(RegisterRequestDto registerRequestDto) {
+    public void registerAdmin(RegisterRequestDto registerRequestDto) throws LoginIsAlreadyTakenException {
+        List<Role> roles = List.of(Role.ADMIN);
+        String refreshToken = UUID.randomUUID().toString();
 
+        UserCredentials userCredentials = UserCredentials.builder()
+                .login(registerRequestDto.login())
+                .passwordHash(passwordEncoder.encode(registerRequestDto.password()))
+                .roles(roles)
+                .status(UserStatus.PENDING)
+                .build();
+
+        if(userCredentialsRepository.existsByLogin(registerRequestDto.login()))
+            throw new LoginIsAlreadyTakenException(registerRequestDto.login());
+
+        userCredentials = userCredentialsRepository.save(userCredentials);
+
+        eventPublisher.publishEvent(new CreateUserEvent(
+                userCredentials.getUserId(),
+                registerRequestDto.firstName(),
+                registerRequestDto.lastName(),
+                registerRequestDto.birthDate(),
+                registerRequestDto.email()
+        ));
     }
 
+    @Transactional
     @Override
     public void activateUserCredentials(Long userId) {
-
+        userCredentialsRepository.setActiveByUserId(userId, true);
     }
 
     @Override
     public void deactivateUserCredentials(Long userId) {
-
+        userCredentialsRepository.setActiveByUserId(userId, false);
     }
 }

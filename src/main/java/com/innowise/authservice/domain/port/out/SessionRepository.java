@@ -24,4 +24,8 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     @Modifying
     @Query("UPDATE Session s SET s.refreshTokenHash = :rth WHERE s.sessionId = :sessionId")
     void updateRefreshTokenHash(@Param("sessionId") Long sessionId, @Param("rth") String refreshTokenHash);
+
+    @Modifying
+    @Query("UPDATE Session s SET s.active = false WHERE s.userId = :userId")
+    void setActiveFalseByUserId(@Param("userId") Long userId);
 }

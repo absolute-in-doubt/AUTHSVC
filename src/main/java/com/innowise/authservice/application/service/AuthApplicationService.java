@@ -25,7 +25,7 @@ public interface AuthApplicationService {
 
     //activating sessions is impossible as it'll make the expired sessions eternally alive
 
-    void registerAdmin(RegisterRequestDto registerRequestDto);
+    void registerAdmin(RegisterRequestDto registerRequestDto) throws LoginIsAlreadyTakenException;
 
 
 

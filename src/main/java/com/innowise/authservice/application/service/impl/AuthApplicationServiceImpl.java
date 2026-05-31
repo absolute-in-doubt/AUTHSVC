@@ -40,16 +40,6 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
      (but without the actual creation of the duplicate)
     */
 
-    /*
-    TODO create a retry worker
-    Http retry worker:
-    1. send requests to create user on user service
-    2. if (duplicate requests arrive) userId won't let to create duplicate users) <- idempotency key
-    3. as the success response received -> set UserCredentials status as ACTIVE
-    4. if after several retries (in one transaction) we haven't received the successful response,
-    increment the outbox event's retries counter
-    if (the counter is greater than some threshold) mark the outbox event as DEAD_LETTER and the UserCredentials as FAILED_TO_ACTIVATE
-     */
 
     @Override
     @Transactional
@@ -92,7 +82,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         ));
 
         String accessToken = jwtService.createJwt(
-                userCredentials.getUserId(),
+                userCredentials.getUserId().toString(),
                 requestDto.login(),
                 roles,
                 session.getExpiresAt()
@@ -132,7 +122,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         sessionRepository.save(session);
 
         String accessToken = jwtService.createJwt(
-                userCredentials.getUserId(),
+                userCredentials.getUserId().toString(),
                 logInRequestDto.login(),
                 roles,
                 session.getExpiresAt()
@@ -161,7 +151,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         sessionRepository.updateRefreshTokenHash(session.getSessionId(), passwordEncoder.encode(newRefreshToken));
 
         String accessToken = jwtService.createJwt(
-                session.getUserId(),
+                session.getUserId().toString(),
                 userCredentials.getLogin(),
                 userCredentials.getRoles(),
                 session.getExpiresAt()

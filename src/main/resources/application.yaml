@@ -9,7 +9,27 @@ spring:
         awaitTerminationPeriodSeconds: 180
       outboxRetryWorker:
         rateMillis: 100
+  jpa:
+    hibernate:
+      ddl-auto: create
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    url: ${POSTGRES_URL}
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+server:
+  port: 8081
 
 application:
   security:

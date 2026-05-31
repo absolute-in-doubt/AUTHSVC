@@ -1,5 +1,6 @@
 package com.innowise.authservice.infrastructure.security.filter;
 
+import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
@@ -9,18 +10,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Set;
 
-@Component
+//Configured in the SecurityConfig
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -28,10 +27,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final DeviceDetailsResolver deviceDetailsResolver;
 
-    private final JwtServiceImpl jwtServiceImpl;
+    private final JwtService jwtService;
 
-    @Value("${application.filter.path.public}")
-    private Set<String> publicPaths;
+    private final Set<String> publicPaths;
 
 
     @Override
@@ -60,12 +58,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
             }
 
-            Jwt jwt = jwtServiceImpl.decode(accessToken);
-            if(!jwtServiceImpl.isTokenValid(jwt)){
+            Jwt jwt = jwtService.decode(accessToken);
+            if(!jwtService.isTokenValid(jwt)){
                 throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
             }
 
-            JwtAuthenticationToken jwtAuthenticationToken = jwtServiceImpl.convert(jwt);
+            JwtAuthenticationToken jwtAuthenticationToken = jwtService.convert(jwt);
             jwtAuthenticationToken.setDetails(deviceDetails);
             SecurityContextHolder.getContext().setAuthentication(jwtAuthenticationToken);
         }

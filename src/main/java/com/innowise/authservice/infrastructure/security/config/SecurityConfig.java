@@ -1,5 +1,7 @@
 package com.innowise.authservice.infrastructure.security.config;
 
+import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
+import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -75,10 +77,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public BearerTokenResolver publicPathsBearerTokenResolver() {
-        return new DefaultBearerTokenResolver();
-    }
+//    @Bean
+//    public BearerTokenResolver publicPathsBearerTokenResolver() {
+//        return new DefaultBearerTokenResolver();
+//    }
 
     @Bean
     public JWKSet jwkSet() {
@@ -114,6 +116,19 @@ public class SecurityConfig {
                     }
                 }).toList();
         return new JWKSet(jwks);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            DeviceDetailsResolver deviceDetailsResolver,
+            JwtService jwtService
+    ){
+        return new JwtAuthenticationFilter(
+                new DefaultBearerTokenResolver(),
+                deviceDetailsResolver,
+                jwtService,
+                properties.paths().publicPaths()
+        );
     }
 
     @Bean

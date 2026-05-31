@@ -36,3 +36,5 @@ build/
 ### Application ###
 jwks.env
 client-secrets.env
+app.env
+postgres.env

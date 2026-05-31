@@ -27,6 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
+		<sonar.organization>absolute-in-doubt</sonar.organization>
 		<java.version>21</java.version>
 		<resilience4j-version>2.4.0</resilience4j-version>
 	</properties>

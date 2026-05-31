@@ -30,6 +30,7 @@ services:
       - POSTGRES_USER=myuser
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - JWKS_URL=http://authservice_postgres:8081/.well-known/jwks.json
     ports:
       - "8080:8080"
     depends_on:

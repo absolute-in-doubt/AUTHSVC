@@ -42,6 +42,7 @@ application:
         - /v3/api-docs/*
         - /v3/api-docs
         - /api/v1/auth/service/authenticate
+        - /.well-known/jwks.json
       userPaths:
         - /api/v1/auth/logout
         - /api/v1/auth/refresh

@@ -38,3 +38,4 @@ jwks.env
 client-secrets.env
 app.env
 postgres.env
+**/src/main/resources/liquibase.properties

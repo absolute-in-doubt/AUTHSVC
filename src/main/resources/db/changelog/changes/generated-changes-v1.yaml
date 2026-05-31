@@ -1,0 +1,146 @@
+databaseChangeLog:
+- changeSet:
+    id: 1780257963959-1
+    author: нео (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: birth_date
+            type: date
+        - column:
+            name: retries_counter
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: created_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: create_user_outbox_pkey
+            name: user_id
+            type: BIGINT
+        - column:
+            name: email
+            type: VARCHAR(255)
+        - column:
+            name: first_name
+            type: VARCHAR(255)
+        - column:
+            name: last_name
+            type: VARCHAR(255)
+        - column:
+            name: status
+            type: VARCHAR(255)
+        tableName: create_user_outbox
+- changeSet:
+    id: 1780257963959-2
+    author: нео (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: created_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: last_modified_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: user_credentials_pkey
+            name: user_id
+            type: BIGINT
+        - column:
+            name: login
+            type: VARCHAR(255)
+        - column:
+            name: password_hash
+            type: VARCHAR(255)
+        - column:
+            name: status
+            type: VARCHAR(255)
+        - column:
+            name: roles
+            type: JSONB
+        tableName: user_credentials
+- changeSet:
+    id: 1780257963959-3
+    author: нео (generated)
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: session_id_seq
+        startValue: 1
+- changeSet:
+    id: 1780257963959-4
+    author: нео (generated)
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: user_credentials_seq
+        startValue: 1
+- changeSet:
+    id: 1780257963959-5
+    author: нео (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: active
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: created_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: expires_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: last_active_at
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: sessions_pkey
+            name: session_id
+            type: BIGINT
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: ip_address
+            type: VARCHAR(255)
+        - column:
+            name: refresh_token_hash
+            type: VARCHAR(255)
+        - column:
+            name: user_agent
+            type: VARCHAR(255)
+        tableName: sessions
+

@@ -5,6 +5,7 @@ import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.domain.security.model.JwtUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
@@ -59,13 +61,14 @@ public class JwtServiceImpl implements JwtService {
 
     public boolean isTokenValid(Jwt jwt){
         Instant expiresAt = jwt.getExpiresAt();
-        return expiresAt != null && expiresAt.isBefore(Instant.now());
+        return expiresAt != null && expiresAt.isAfter(Instant.now());
     }
 
     public JwtAuthenticationToken convert(Jwt jwt) {
         List<String> roles = jwt.getClaimAsStringList(JwtClaim.ROLES);
         Collection<GrantedAuthority> authorities = (roles == null)? List.of() :
                 roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        log.debug("Request has the following roles: {}", authorities);
         String userId = jwt.getSubject();
         String login = jwt.getClaimAsString(JwtClaim.LOGIN);
 

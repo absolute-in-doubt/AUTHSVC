@@ -23,7 +23,7 @@ public class AuthServiceApplication {
 	> 2. write a dockerfile and compose.yaml
 	2.1 Set up authorization annotations
 	> 2.2 Set up liquibase
-	2.3 Set up GlobalExceptionHandler
+	> 2.3 Set up GlobalExceptionHandler
 	3. implement integration tests
 	4. implement e2e tests
 	5. Review the transactional functionality

@@ -53,7 +53,6 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // отключает SessionManagementFilter
                 )
                 .headers(Customizer.withDefaults())
-                .cors(Customizer.withDefaults())
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
                     config.setAllowedOriginPatterns(List.of("*"));
@@ -63,7 +62,7 @@ public class SecurityConfig {
                     config.setMaxAge(3600L);
                     return config;
                 }))
-                .csrf(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .addFilterAfter(jwtAuthenticationFilter, LogoutFilter.class)
                 .requestCache(AbstractHttpConfigurer::disable)

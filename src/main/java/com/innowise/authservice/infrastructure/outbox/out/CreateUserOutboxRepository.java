@@ -19,10 +19,10 @@ public interface CreateUserOutboxRepository extends JpaRepository<CreateUserOutb
     Optional<CreateUserOutboxEntity> findUnprocessedAndUnlocked();
 
     @Modifying
-    @Query("UPDATE CreateUserOutboxEntity cuoe SET cuoe.status = :status WHERE cuoe.userId = :userId")
+    @Query("UPDATE CreateUserOutboxEntity SET status = :status WHERE userId = :userId")
     void setStatusByUserId(@Param("userId") Long userId, @Param("status") OutboxEventStatus status);
 
     @Modifying
-    @Query("UPDATE CreateUserOutboxEntity cuoe SET cuoe.retriesCounter = retriesCounter + 1 WHERE cuoe.userId = :userId")
+    @Query("UPDATE CreateUserOutboxEntity SET retriesCounter = retriesCounter + 1 WHERE userId = :userId")
     void incrementRetriesCounterByUserId(@Param("userId") Long userId);
 }

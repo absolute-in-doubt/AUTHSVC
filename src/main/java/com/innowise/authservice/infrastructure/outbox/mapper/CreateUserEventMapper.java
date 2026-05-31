@@ -9,6 +9,6 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CreateUserEventMapper {
 
-    @Mapping(target = "status", constant = "com.innowise.authservice.infrastructure.outbox.model.Role.UNPROCESSED")
+    @Mapping(target = "status", constant = "UNPROCESSED")
     CreateUserOutboxEntity toEntity(CreateUserEvent event);
 }

@@ -15,17 +15,17 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     Optional<Session> findByIpAddressAndUserAgent(String ipAddress, String userAgent);
 
     @Modifying
-    @Query("UPDATE Session s SET s.active = :active WHERE s.sessionId = :sessionId")
+    @Query("UPDATE Session SET active = :active WHERE sessionId = :sessionId")
     void setActive(@Param("sessionId") Long sessionId, @Param("active") boolean active);
 
     @Query("SELECT s FROM Session s WHERE s.refreshTokenHash = :rth and s.active = true")
     Optional<Session> findByRefreshTokenHashAndActiveTrue(@Param("rth") String refreshTokenHash);
 
     @Modifying
-    @Query("UPDATE Session s SET s.refreshTokenHash = :rth WHERE s.sessionId = :sessionId")
+    @Query("UPDATE Session SET refreshTokenHash = :rth WHERE sessionId = :sessionId")
     void updateRefreshTokenHash(@Param("sessionId") Long sessionId, @Param("rth") String refreshTokenHash);
 
     @Modifying
-    @Query("UPDATE Session s SET s.active = false WHERE s.userId = :userId")
+    @Query("UPDATE Session SET active = false WHERE userId = :userId")
     void setActiveFalseByUserId(@Param("userId") Long userId);
 }

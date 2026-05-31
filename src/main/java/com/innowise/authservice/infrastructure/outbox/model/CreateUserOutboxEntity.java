@@ -18,7 +18,7 @@ public class CreateUserOutboxEntity {
     @Id
     @Column(name = "user_id")
     private Long userId;   //Idempotency key
-    @Column(name = "last_name")
+    @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")
     private String lastName;

@@ -18,6 +18,6 @@ public interface UserCredentialsRepository extends JpaRepository<UserCredentials
     Optional<UserCredentials> findByLogin(String login);
 
     @Modifying
-    @Query("UPDATE UserCredentials uc SET uc.status = : WHERE uc.userId = :userId")
+    @Query("UPDATE UserCredentials SET status = :status WHERE userId = :userId")
     void setStatusByUserId(@Param("userId") Long userId, @Param("status") UserStatus status);
 }

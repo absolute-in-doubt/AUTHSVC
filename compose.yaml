@@ -19,7 +19,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data-2:/var/lib/postgresql/data
 
   userservice:
     image: 'ghcr.io/absolute-in-doubt/usrsvc:latest'
@@ -45,11 +45,12 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data-1:/var/lib/postgresql/data
   redis:
     image: 'redis:latest'
     ports:
       - '6379:6379'
 volumes:
-  postgres_data:
+  postgres_data-1:
+  postgres_data-2:
 

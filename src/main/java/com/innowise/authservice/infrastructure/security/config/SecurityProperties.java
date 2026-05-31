@@ -1,4 +1,4 @@
-package com.innowise.authservice.infrastructure.security;
+package com.innowise.authservice.infrastructure.security.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

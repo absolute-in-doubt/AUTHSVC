@@ -43,6 +43,8 @@ application:
         clientSecret: ${USRSVC_CLIENT_SECRET}
   userservice:
     createUserUri: ${USRSVC_CREATE_USER_URI}
+  outbox:
+    workerRetriesThreshold: 5
 
 resilience4j:
   circuitbreaker:

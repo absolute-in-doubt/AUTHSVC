@@ -6,7 +6,7 @@ import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.application.service.ServiceAuthApplicationService;
 import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.exception.IncorrectServiceCredentialsException;
-import com.innowise.authservice.infrastructure.security.SecurityProperties;
+import com.innowise.authservice.infrastructure.security.config.SecurityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

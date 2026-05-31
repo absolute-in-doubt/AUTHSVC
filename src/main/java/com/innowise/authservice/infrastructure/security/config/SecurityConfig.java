@@ -1,8 +1,6 @@
-package com.innowise.authservice.infrastructure.security;
+package com.innowise.authservice.infrastructure.security.config;
 
 import com.innowise.authservice.domain.model.Role;
-import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
-import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
 import com.innowise.authservice.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
@@ -14,9 +12,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +32,6 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Configuration

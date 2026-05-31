@@ -31,6 +31,8 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import java.text.ParseException;
 import java.util.List;
@@ -119,14 +121,21 @@ public class SecurityConfig {
     }
 
     @Bean
+    public PathMatcher pathMatcher() {
+        return new AntPathMatcher();
+    }
+
+    @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
             DeviceDetailsResolver deviceDetailsResolver,
-            JwtService jwtService
+            JwtService jwtService,
+            PathMatcher pathMatcher
     ){
         return new JwtAuthenticationFilter(
                 new DefaultBearerTokenResolver(),
                 deviceDetailsResolver,
                 jwtService,
+                pathMatcher,
                 properties.paths().publicPaths()
         );
     }

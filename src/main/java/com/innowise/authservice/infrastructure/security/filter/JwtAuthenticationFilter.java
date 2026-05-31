@@ -4,21 +4,23 @@ import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
-import com.innowise.authservice.infrastructure.security.service.JwtServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Set;
 
+@Slf4j
 //Configured in the SecurityConfig
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -29,7 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final Set<String> publicPaths;
+    private final PathMatcher pathMatcher;
+
+    private final Set<String> publicPathPatterns;
 
 
     @Override
@@ -46,10 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //7. if Jwt is present, call JwtService convert(Jwt, JwtAuthenticationToken) <- adds data to the token
         //8. filterChain.doFilter
 
+        log.trace("Received a request for {}", request.getRequestURI());
+
         DeviceAuthenticationDetails deviceDetails = deviceDetailsResolver.resolve(request);
 
-
-        if(publicPaths.contains(request.getRequestURI())){
+        if (publicPathPatterns.stream().anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()))) {
             SecurityContextHolder.getContext().setAuthentication(JwtAuthenticationToken.empty(deviceDetails));
         } else {
             String accessToken = tokenResolver.resolve(request);

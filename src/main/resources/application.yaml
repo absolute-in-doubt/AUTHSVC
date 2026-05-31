@@ -27,6 +27,7 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+    oauth2RedirectUrl: /swagger-ui/oauth2-redirect.html
 
 server:
   port: 8081
@@ -38,12 +39,18 @@ application:
     jwtLifeMinutes: 180
     paths:
       publicPaths:
-        - /api/v1/public/login
-        - /api/v1/public/register
+        - /api/v1/auth/refresh
+        - /api/v1/auth/login
+        - /api/v1/auth/register
+        - /v3/api-docs.yaml
+        - /swagger-ui/*
+        - /swagger-ui.html
+        - /v3/api-docs/*
+        - /v3/api-docs
       userPaths:
-        - /api/v1/user/logout
+        - /api/v1/auth/logout
       adminPaths:
-        - /api/v1/admin/session/invalidate
+        - /api/v1/admin/session/*
         - /api/v1/admin/register
     jwks:
       - kid: ${JWK_ID}

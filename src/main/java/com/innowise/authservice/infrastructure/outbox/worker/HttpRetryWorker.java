@@ -47,7 +47,7 @@ public class HttpRetryWorker {
     @Value("${application.outbox.workerRetriesThreshold}")
     private int workerRetriesThreshold;
 
-    @Scheduled(fixedRateString = "${application.task.scheduling.outboxRetryWorker.rateMillis}")
+    @Scheduled(fixedRateString = "${spring.task.scheduling.outboxRetryWorker.rateMillis}")
     @Transactional
     public void process() {
 

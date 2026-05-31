@@ -37,10 +37,7 @@ public class JwtServiceImpl implements JwtService {
 
 
     public Jwt createJwt(String userId, String login, List<Role> roles, LocalDateTime sessionExpiresAt){
-        Collection<GrantedAuthority> authorities = roles.stream()
-                .map(Role::toString)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        List<String> roleStrings = roles.stream().map(Role::toString).toList();
         LocalDateTime dirtyExpiresAt = LocalDateTime.now().plusMinutes(jwtLifeMinutes);
         LocalDateTime expiresAt = (dirtyExpiresAt.isBefore(sessionExpiresAt))? dirtyExpiresAt : sessionExpiresAt;
 
@@ -48,7 +45,7 @@ public class JwtServiceImpl implements JwtService {
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .subject(userId)
                 .claim(JwtClaim.LOGIN, login)
-                .claim(JwtClaim.ROLES, authorities)
+                .claim(JwtClaim.ROLES, roleStrings)
                 .expiresAt(expiresAt.atZone(ZoneId.systemDefault()).toInstant())
                 .build();
 

@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -101,7 +102,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         if(!passwordEncoder.matches(logInRequestDto.password(), userCredentials.getPasswordHash()))
             throw new IncorrectLoginOrPasswordException(logInRequestDto.login());
 
-        sessionRepository.findByIpAddressAndUserAgent(ipAddress, userAgent)
+        sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)
                 .ifPresent(existingSession -> sessionRepository.setActive(existingSession.getSessionId(), false));
 
 
@@ -130,12 +131,15 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
      */
     @Transactional
     @Override
-    public TwoTokensResponseDto refresh(String refreshToken) throws ActiveSessionNotFoundException {
+    public TwoTokensResponseDto refresh(Long userId, String refreshToken) throws ActiveSessionNotFoundException {
 
         String refreshTokenHash = passwordEncoder.encode(refreshToken);
 
-        Session session = sessionRepository.findByRefreshTokenHashAndActiveTrue(refreshTokenHash)
-                .orElseThrow(() -> new ActiveSessionNotFoundException(refreshTokenHash));
+        log.debug("All the sessions in the DB:\n {}", sessionRepository.findAll().stream().map(Session::toString).collect(Collectors.joining("\n")));
+
+        Session session = sessionRepository.findByUserIdAndActiveTrue(userId)
+                .stream().filter(foundSession -> passwordEncoder.matches(refreshToken, foundSession.getRefreshTokenHash()))
+                .findFirst().orElseThrow(() -> new ActiveSessionNotFoundException(userId));
 
         UserCredentials userCredentials = userCredentialsRepository.findById(session.getUserId())
                 .orElseThrow(() -> new UserCredentialsNotFoundException(session.getUserId()));

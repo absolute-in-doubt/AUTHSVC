@@ -23,6 +23,7 @@ services:
 
   userservice:
     image: 'ghcr.io/absolute-in-doubt/usrsvc:latest'
+    pull_policy: always
     environment:
       - POSTGRES_URL=jdbc:postgresql://userservice_postgres:5432/user_service_db
       - POSTGRES_PASSWORD=secret

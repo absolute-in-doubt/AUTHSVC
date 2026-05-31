@@ -43,8 +43,9 @@ public class UserAuthControllerImpl implements UserAuthController {
 
     @Override
     @GetMapping("/refresh")
-    public ResponseEntity<TwoTokensResponseDto> refresh(@RequestParam("refreshToken") String refreshToken) throws ActiveSessionNotFoundException {
-        return ResponseEntity.ok(userAuthService.refresh(refreshToken));
+    public ResponseEntity<TwoTokensResponseDto> refresh(@CurrentAuthentication JwtAuthenticationToken authentication, @RequestParam("refreshToken") String refreshToken) throws ActiveSessionNotFoundException {
+        JwtUserDetails jwtUserDetails = (JwtUserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(userAuthService.refresh(jwtUserDetails.userId(), refreshToken));
     }
 
     @Override

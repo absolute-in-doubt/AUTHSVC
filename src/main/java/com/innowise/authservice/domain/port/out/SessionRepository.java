@@ -7,19 +7,25 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Long> {
 
-    Optional<Session> findByIpAddressAndUserAgent(String ipAddress, String userAgent);
+    @Query("SELECT s FROM Session s WHERE s.ipAddress = :ipAddress and s.userAgent = :userAgent and s.active = true")
+    Optional<Session> findByIpAddressAndUserAgentAndActiveTrue(@Param("ipAddress") String ipAddress, @Param("userAgent") String userAgent);
 
     @Modifying
     @Query("UPDATE Session SET active = :active WHERE sessionId = :sessionId")
     void setActive(@Param("sessionId") Long sessionId, @Param("active") boolean active);
 
-    @Query("SELECT s FROM Session s WHERE s.refreshTokenHash = :rth and s.active = true")
-    Optional<Session> findByRefreshTokenHashAndActiveTrue(@Param("rth") String refreshTokenHash);
+//    @Query("SELECT s FROM Session s WHERE s.refreshTokenHash = :rth and s.active = true")
+//    Optional<Session> findByRefreshTokenHashAndActiveTrue(@Param("rth") String refreshTokenHash);
+//
+
+    @Query("SELECT s FROM Session s WHERE s.userId = :userId and s.active = true")
+    List<Session> findByUserIdAndActiveTrue(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE Session SET refreshTokenHash = :rth WHERE sessionId = :sessionId")

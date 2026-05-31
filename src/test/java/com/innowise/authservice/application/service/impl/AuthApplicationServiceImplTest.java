@@ -73,7 +73,7 @@ class AuthApplicationServiceImplTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(eq(1L), eq("testuser"), anyList(), any(LocalDateTime.class)))
+        when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class)))
                 .thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
 
@@ -145,7 +145,7 @@ class AuthApplicationServiceImplTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(eq(1L), eq("testuser"), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
+        when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
 
         // When
@@ -203,7 +203,7 @@ class AuthApplicationServiceImplTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(anyLong(), anyString(), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
+        when(jwtService.createJwt(anyString(), anyString(), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
 
         // When
@@ -265,7 +265,7 @@ class AuthApplicationServiceImplTest {
         when(sessionRepository.findByRefreshTokenHashAndActiveTrue(oldRefreshTokenHash))
                 .thenReturn(Optional.of(session));
         when(userCredentialsRepository.findById(1L)).thenReturn(Optional.of(userCredentials));
-        when(jwtService.createJwt(anyLong(), anyString(), anyList(), any(LocalDateTime.class)))
+        when(jwtService.createJwt(anyString(), anyString(), anyList(), any(LocalDateTime.class)))
                 .thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("newAccessToken");
 

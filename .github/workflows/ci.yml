@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ feature/USRSVC ]
+    branches: [ feature/AUTHSVC ]
 
 permissions:
   contents: read

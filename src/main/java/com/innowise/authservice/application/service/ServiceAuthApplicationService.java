@@ -12,10 +12,4 @@ public interface ServiceAuthApplicationService {
 
     AccessTokenResponseDto authenticate(ServiceAuthenticationRequestDto requestDto) throws IncorrectServiceCredentialsException;
 
-    /*
-    1. Implement ServiceAuthenticationService
-    2. Implement HttpRetryWorker. Make it use ServiceAuthenticationService to get the Jwt on it's own
-    3. Implement controllers
-    4. Implement ControllerAdvice
-     */
 }

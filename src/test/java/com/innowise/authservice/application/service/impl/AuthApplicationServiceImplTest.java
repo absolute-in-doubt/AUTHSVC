@@ -269,7 +269,7 @@ class AuthApplicationServiceImplTest {
                 .thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("newAccessToken");
 
-        TwoTokensResponseDto result = authService.refresh(new RefreshRequestDto(oldRefreshToken));
+        TwoTokensResponseDto result = authService.refresh(oldRefreshToken);
 
         assertEquals("newAccessToken", result.accessToken());
         assertNotNull(result.refreshToken());
@@ -288,7 +288,7 @@ class AuthApplicationServiceImplTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(ActiveSessionNotFoundException.class,
-                () -> authService.refresh(new RefreshRequestDto(refreshToken)));
+                () -> authService.refresh(refreshToken));
     }
 
 
@@ -306,7 +306,7 @@ class AuthApplicationServiceImplTest {
 
         // When & Then
         assertThrows(UserCredentialsNotFoundException.class,
-                () -> authService.refresh(new RefreshRequestDto(refreshToken)));
+                () -> authService.refresh(refreshToken));
     }
 
 

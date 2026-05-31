@@ -35,12 +35,6 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     private final ApplicationEventPublisher eventPublisher;
     private final JwtService jwtService;
 
-    /*
-    TODO make user service return the same response on the duplicate request to create the same user
-     (but without the actual creation of the duplicate)
-    */
-
-
     @Override
     @Transactional
     public TwoTokensResponseDto register(RegisterRequestDto requestDto, String ipAddress, String userAgent)
@@ -136,9 +130,9 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
      */
     @Transactional
     @Override
-    public TwoTokensResponseDto refresh(RefreshRequestDto refreshRequestDto) throws ActiveSessionNotFoundException {
+    public TwoTokensResponseDto refresh(String refreshToken) throws ActiveSessionNotFoundException {
 
-        String refreshTokenHash = passwordEncoder.encode(refreshRequestDto.refreshToken());
+        String refreshTokenHash = passwordEncoder.encode(refreshToken);
 
         Session session = sessionRepository.findByRefreshTokenHashAndActiveTrue(refreshTokenHash)
                 .orElseThrow(() -> new ActiveSessionNotFoundException(refreshTokenHash));

@@ -39,17 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        //1. create an unauthenticated JwtAuthenticationToken
-        //2. Fill in the DeviceAuthenticationDetails
-        //3. Load it in the Security context        <- needed for the device info retrieval
-        //              while registering or logging user in to create a new session or to avoid creating multiple
-        //              sessions for the same device and straight up log user in without real
-        //4. check if the path is public, if so -> filterChain.doFilter() + return;
-        //5. if path is not public, resolve Jwt via BearerTokenResolver
-        //6. if Jwt == null -> 401 Unauthorized
-        //7. if Jwt is present, call JwtService convert(Jwt, JwtAuthenticationToken) <- adds data to the token
-        //8. filterChain.doFilter
-
         log.debug("Received a request for {}", request.getRequestURI());
 
         DeviceAuthenticationDetails deviceDetails = deviceDetailsResolver.resolve(request);

@@ -69,10 +69,11 @@ public class UserAuthControllerImpl implements UserAuthController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    /*
-    Validation is implemented in the JwtAuthenticationFilter,
-    so if the request reaches the endpoint,
-    it means that the access token is valid
+    /**
+     *     Validation is implemented in the JwtAuthenticationFilter,
+     *     so if the request reaches the endpoint,
+     *     it means that the access token is valid
+     * @return empty response
      */
     @Override
     @GetMapping("/validate")

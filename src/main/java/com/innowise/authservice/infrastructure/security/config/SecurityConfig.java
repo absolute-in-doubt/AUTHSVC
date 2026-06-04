@@ -54,7 +54,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter){
         http
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // отключает SessionManagementFilter
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .headers(Customizer.withDefaults())
                 .cors(cors -> cors.configurationSource(request -> {
@@ -81,11 +81,6 @@ public class SecurityConfig {
                 .exceptionHandling(Customizer.withDefaults());
         return http.build();
     }
-
-//    @Bean
-//    public BearerTokenResolver publicPathsBearerTokenResolver() {
-//        return new DefaultBearerTokenResolver();
-//    }
 
     @Bean
     public JWKSet jwkSet() {

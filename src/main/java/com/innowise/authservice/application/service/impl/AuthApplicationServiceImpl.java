@@ -125,15 +125,9 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         return new TwoTokensResponseDto(accessToken, refreshToken);
     }
 
-    /*
-    Creates a new refresh token each time a new access token is requested
-     */
     @Transactional
     @Override
     public TwoTokensResponseDto refresh(String refreshToken) throws ActiveSessionNotFoundException {
-
-        log.debug("All the sessions in the DB:\n {}", sessionRepository.findAll().stream().map(Session::toString).collect(Collectors.joining("\n")));
-
         String refreshTokenHash = hashManager.hash(refreshToken);
 
         Session session = sessionRepository.findByRefreshTokenHash(refreshTokenHash)
@@ -143,7 +137,6 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
                 .orElseThrow(() -> new UserCredentialsNotFoundException(session.getUserId()));
 
         String newRefreshToken = UUID.randomUUID().toString();
-        log.trace("New refresh token: {}", newRefreshToken);
         sessionRepository.updateRefreshTokenHash(session.getSessionId(), passwordEncoder.encode(newRefreshToken));
 
         String accessToken = jwtService.createJwt(

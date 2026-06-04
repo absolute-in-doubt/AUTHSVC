@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public class JwtAuthenticationToken extends AbstractAuthenticationToken{
+public class JwtAuthenticationToken extends AbstractAuthenticationToken implements AuthenticationContext{
 
     private Object principal;
 
@@ -32,6 +32,10 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken{
         setDetails(deviceAuthenticationDetails);
         this.principal = principal;
         setAuthenticated(authenticated);
+    }
+
+    public DeviceAuthenticationDetails getDetails(){
+        return (DeviceAuthenticationDetails) super.getDetails();
     }
 
     public void setPrincipal(Object jwtUserDetails){

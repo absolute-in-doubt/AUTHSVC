@@ -7,18 +7,19 @@ import com.innowise.authservice.domain.model.exception.ActiveSessionNotFoundExce
 import com.innowise.authservice.domain.model.exception.IncorrectLoginOrPasswordException;
 import com.innowise.authservice.domain.model.exception.LoginIsAlreadyTakenException;
 import com.innowise.authservice.domain.model.exception.UserCreationPendingException;
+import com.innowise.authservice.infrastructure.security.model.AuthenticationContext;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import org.springframework.http.ResponseEntity;
 
 public interface UserAuthController {
 
-    ResponseEntity<TwoTokensResponseDto> register(JwtAuthenticationToken authentication, RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException;
+    ResponseEntity<TwoTokensResponseDto> register(AuthenticationContext authentication, RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException;
 
-    ResponseEntity<TwoTokensResponseDto> logIn(JwtAuthenticationToken authentication, LogInRequestDto logInRequestDto) throws UserCreationPendingException, IncorrectLoginOrPasswordException;
+    ResponseEntity<TwoTokensResponseDto> logIn(AuthenticationContext authentication, LogInRequestDto logInRequestDto) throws UserCreationPendingException, IncorrectLoginOrPasswordException;
 
     ResponseEntity<TwoTokensResponseDto> refresh(String refreshToken) throws ActiveSessionNotFoundException;
 
-    ResponseEntity<Void> logOut(JwtAuthenticationToken authentication);
+    ResponseEntity<Void> logOut(AuthenticationContext authentication);
 
     ResponseEntity<Void> deactivateSessionById(Long sessionId);
 

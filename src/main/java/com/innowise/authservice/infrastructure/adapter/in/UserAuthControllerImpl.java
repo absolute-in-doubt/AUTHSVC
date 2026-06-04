@@ -12,6 +12,7 @@ import com.innowise.authservice.domain.port.in.UserAuthController;
 import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
 import com.innowise.authservice.domain.security.model.JwtUserDetails;
 import com.innowise.authservice.infrastructure.security.annotation.CurrentAuthentication;
+import com.innowise.authservice.infrastructure.security.model.AuthenticationContext;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,16 +28,16 @@ public class UserAuthControllerImpl implements UserAuthController {
 
     @Override
     @PostMapping("/register")
-    public ResponseEntity<TwoTokensResponseDto> register(@CurrentAuthentication JwtAuthenticationToken authentication, @RequestBody RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException {
-        DeviceAuthenticationDetails deviceDetails = (DeviceAuthenticationDetails) authentication.getDetails();
+    public ResponseEntity<TwoTokensResponseDto> register(@CurrentAuthentication AuthenticationContext authentication, @RequestBody RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException {
+        DeviceAuthenticationDetails deviceDetails = authentication.getDetails();
         TwoTokensResponseDto response = userAuthService.register(requestDto, deviceDetails.ipAddress(), deviceDetails.userAgent());
         return ResponseEntity.ok(response);
     }
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<TwoTokensResponseDto> logIn(@CurrentAuthentication JwtAuthenticationToken authentication, LogInRequestDto logInRequestDto) throws UserCreationPendingException, IncorrectLoginOrPasswordException {
-        DeviceAuthenticationDetails deviceDetails = (DeviceAuthenticationDetails) authentication.getDetails();
+    public ResponseEntity<TwoTokensResponseDto> logIn(@CurrentAuthentication AuthenticationContext authentication, LogInRequestDto logInRequestDto) throws UserCreationPendingException, IncorrectLoginOrPasswordException {
+        DeviceAuthenticationDetails deviceDetails = authentication.getDetails();
         TwoTokensResponseDto response = userAuthService.logIn(logInRequestDto, deviceDetails.ipAddress(), deviceDetails.userAgent());
         return ResponseEntity.ok(response);
     }
@@ -49,7 +50,7 @@ public class UserAuthControllerImpl implements UserAuthController {
 
     @Override
     @GetMapping("/logout")
-    public ResponseEntity<Void> logOut(@CurrentAuthentication JwtAuthenticationToken authentication) {
+    public ResponseEntity<Void> logOut(@CurrentAuthentication AuthenticationContext authentication) {
         JwtUserDetails jwtUserDetails = (JwtUserDetails) authentication.getPrincipal();
         userAuthService.logOut(jwtUserDetails.userId());
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();

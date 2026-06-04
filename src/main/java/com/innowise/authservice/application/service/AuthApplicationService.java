@@ -13,7 +13,7 @@ public interface AuthApplicationService {
 
     TwoTokensResponseDto logIn(LogInRequestDto logInRequestDto, String ipAddress, String userAgent) throws IncorrectLoginOrPasswordException, UserCreationPendingException;
 
-    TwoTokensResponseDto refresh(Long userId, String refreshToken) throws ActiveSessionNotFoundException;
+    TwoTokensResponseDto refresh(String refreshToken) throws ActiveSessionNotFoundException;
 
     //User
 

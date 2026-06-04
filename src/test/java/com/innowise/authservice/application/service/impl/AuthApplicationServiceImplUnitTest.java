@@ -11,6 +11,7 @@ import com.innowise.authservice.domain.model.UserStatus;
 import com.innowise.authservice.domain.model.exception.*;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
+import com.innowise.authservice.infrastructure.security.service.HashManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,15 +25,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AuthApplicationServiceImplTest {
+class AuthApplicationServiceImplUnitTest {
 
+    @Mock
+    private HashManager hashManager;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -76,6 +78,7 @@ class AuthApplicationServiceImplTest {
         when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class)))
                 .thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
+        when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
 
         // When
         TwoTokensResponseDto result = authService.register(request, ipAddress, userAgent);
@@ -103,6 +106,7 @@ class AuthApplicationServiceImplTest {
                         ce.firstName().equals("John") &&
                         ce.lastName().equals("Doe")
         ));
+        verify(hashManager).hash(anyString());
     }
 
     @Test
@@ -138,7 +142,6 @@ class AuthApplicationServiceImplTest {
         when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
         when(sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedRefreshToken");
         when(sessionRepository.save(any(Session.class))).thenAnswer(inv -> {
             Session s = inv.getArgument(0);
             s.setSessionId(1L);
@@ -147,6 +150,7 @@ class AuthApplicationServiceImplTest {
         });
         when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
+        when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
 
         // When
         TwoTokensResponseDto result = authService.logIn(request, ipAddress, userAgent);
@@ -156,6 +160,7 @@ class AuthApplicationServiceImplTest {
         assertEquals("accessToken123", result.accessToken());
         assertNotNull(result.refreshToken());
         verify(passwordEncoder).matches("password123", "encodedPassword");
+        verify(hashManager).hash(anyString());
     }
 
     @Test
@@ -196,7 +201,7 @@ class AuthApplicationServiceImplTest {
         when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
         when(sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)).thenReturn(Optional.of(existingSession));
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedRefreshToken");
+        when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
         when(sessionRepository.save(any(Session.class))).thenAnswer(inv -> {
             Session s = inv.getArgument(0);
             s.setSessionId(2L);
@@ -211,6 +216,7 @@ class AuthApplicationServiceImplTest {
 
         // Then
         verify(sessionRepository).setActive(1L, false);
+        verify(hashManager).hash(anyString());
     }
 
     @Test

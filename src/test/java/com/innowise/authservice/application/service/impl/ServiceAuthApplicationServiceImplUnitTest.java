@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceAuthApplicationServiceImplTest {
+class ServiceAuthApplicationServiceImplUnitTest {
 
     @Mock
     private List<SecurityProperties.Service> serviceCredentials;

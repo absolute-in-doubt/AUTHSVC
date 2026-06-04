@@ -11,15 +11,18 @@ import com.innowise.authservice.domain.model.UserStatus;
 import com.innowise.authservice.domain.model.exception.*;
 import com.innowise.authservice.domain.port.out.SessionRepository;
 import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
+import com.innowise.authservice.infrastructure.security.service.HashManager;
 import liquibase.license.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Mac;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthApplicationServiceImpl implements AuthApplicationService {
 
+    private final HashManager hashManager;
     private final PasswordEncoder passwordEncoder;
     private final UserCredentialsRepository userCredentialsRepository;
     private final SessionRepository sessionRepository;
@@ -60,7 +64,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
 
         Session session = Session.builder()    //NOTE: expiresAt is set in ExpiresAtSessionEventListener
                 .userId(userCredentials.getUserId())
-                .refreshTokenHash(passwordEncoder.encode(refreshToken))
+                .refreshTokenHash(hashManager.hash(refreshToken))
                 .ipAddress(ipAddress)
                 .userAgent(userAgent)
                 .active(true)
@@ -108,7 +112,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
 
         Session session = Session.builder()    //NOTE: expiresAt is set in ExpiresAtSessionEventListener
                 .userId(userCredentials.getUserId())
-                .refreshTokenHash(passwordEncoder.encode(refreshToken))
+                .refreshTokenHash(hashManager.hash(refreshToken))
                 .ipAddress(ipAddress)
                 .userAgent(userAgent)
                 .active(true)
@@ -131,15 +135,14 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
      */
     @Transactional
     @Override
-    public TwoTokensResponseDto refresh(Long userId, String refreshToken) throws ActiveSessionNotFoundException {
-
-        String refreshTokenHash = passwordEncoder.encode(refreshToken);
+    public TwoTokensResponseDto refresh(String refreshToken) throws ActiveSessionNotFoundException {
 
         log.debug("All the sessions in the DB:\n {}", sessionRepository.findAll().stream().map(Session::toString).collect(Collectors.joining("\n")));
 
-        Session session = sessionRepository.findByUserIdAndActiveTrue(userId)
-                .stream().filter(foundSession -> passwordEncoder.matches(refreshToken, foundSession.getRefreshTokenHash()))
-                .findFirst().orElseThrow(() -> new ActiveSessionNotFoundException(userId));
+        String refreshTokenHash = hashManager.hash(refreshToken);
+
+        Session session = sessionRepository.findByRefreshTokenHash(refreshTokenHash)
+                .orElseThrow(() -> new ActiveSessionNotFoundException(refreshTokenHash));
 
         UserCredentials userCredentials = userCredentialsRepository.findById(session.getUserId())
                 .orElseThrow(() -> new UserCredentialsNotFoundException(session.getUserId()));
@@ -172,6 +175,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
     }
 
     @Override
+    @Transactional
     public void registerAdmin(RegisterRequestDto registerRequestDto) throws LoginIsAlreadyTakenException {
         List<Role> roles = List.of(Role.ADMIN);
 

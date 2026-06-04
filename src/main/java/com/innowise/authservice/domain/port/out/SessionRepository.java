@@ -20,9 +20,9 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     @Query("UPDATE Session SET active = :active WHERE sessionId = :sessionId")
     void setActive(@Param("sessionId") Long sessionId, @Param("active") boolean active);
 
-//    @Query("SELECT s FROM Session s WHERE s.refreshTokenHash = :rth and s.active = true")
-//    Optional<Session> findByRefreshTokenHashAndActiveTrue(@Param("rth") String refreshTokenHash);
-//
+
+
+    Optional<Session> findByRefreshTokenHash(String refreshTokenHash);
 
     @Query("SELECT s FROM Session s WHERE s.userId = :userId and s.active = true")
     List<Session> findByUserIdAndActiveTrue(@Param("userId") Long userId);

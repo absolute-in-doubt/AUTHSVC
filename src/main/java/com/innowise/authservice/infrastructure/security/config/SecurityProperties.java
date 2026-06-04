@@ -7,7 +7,7 @@ import java.util.Set;
 
 @ConfigurationProperties(prefix = "application.security")
 public record SecurityProperties(
-        //session length is injected via @Value
+        String hmacSecret,
         Paths paths,
         List<JwkKey> jwks,
         List<Service> services

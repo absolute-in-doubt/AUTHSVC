@@ -16,7 +16,7 @@ public interface UserAuthController {
 
     ResponseEntity<TwoTokensResponseDto> logIn(JwtAuthenticationToken authentication, LogInRequestDto logInRequestDto) throws UserCreationPendingException, IncorrectLoginOrPasswordException;
 
-    ResponseEntity<TwoTokensResponseDto> refresh(JwtAuthenticationToken authentication, String refreshToken) throws ActiveSessionNotFoundException;
+    ResponseEntity<TwoTokensResponseDto> refresh(String refreshToken) throws ActiveSessionNotFoundException;
 
     ResponseEntity<Void> logOut(JwtAuthenticationToken authentication);
 

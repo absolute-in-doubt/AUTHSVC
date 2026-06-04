@@ -4,6 +4,7 @@ import com.innowise.authservice.application.security.service.DeviceDetailsResolv
 import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.infrastructure.security.filter.JwtAuthenticationFilter;
+import com.innowise.authservice.infrastructure.security.service.HashManager;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -27,14 +28,17 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.HexFormat;
 import java.util.List;
 
 @Slf4j
@@ -164,5 +168,18 @@ public class SecurityConfig {
     @Bean
     public List<SecurityProperties.Service> serviceCredentials(){
         return properties.services();
+    }
+
+    @Bean
+    public HashManager hashManager() throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec keySpec = new SecretKeySpec(
+                properties.hmacSecret().getBytes(StandardCharsets.UTF_8),
+                "HmacSHA256"
+        );
+        mac.init(keySpec);
+
+        return (String value) ->
+            HexFormat.of().formatHex(mac.doFinal(value.getBytes(StandardCharsets.UTF_8)));
     }
 }

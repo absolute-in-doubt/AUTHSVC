@@ -24,8 +24,5 @@ public interface UserAuthController {
 
     ResponseEntity<Void> registerAdmin(RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException;
 
-//  I don't have that much time rn
-//    ResponseEntity<Void> activateUserCredentials(Long userId);
-//
-//    ResponseEntity<Void> deactivateUserCredentials(Long userId);
+    ResponseEntity<Void> validate();
 }

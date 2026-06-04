@@ -3,6 +3,7 @@ package com.innowise.authservice.infrastructure.security.config;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
 import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.model.Role;
+import com.innowise.authservice.infrastructure.security.exception.CustomAuthenticationEntryPoint;
 import com.innowise.authservice.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.innowise.authservice.infrastructure.security.service.HashManager;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -15,6 +16,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +31,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.util.AntPathMatcher;
@@ -51,7 +54,9 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter){
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter,
+                                                   @Qualifier("customAuthenticationEntryPoint") AuthenticationEntryPoint authEntryPoint){
         http
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -78,7 +83,8 @@ public class SecurityConfig {
                         .anyRequest().denyAll() //Check it
                 )
                 .anonymous(Customizer.withDefaults())
-                .exceptionHandling(Customizer.withDefaults());
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint)
+                        );
         return http.build();
     }
 
@@ -127,9 +133,11 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter(
             DeviceDetailsResolver deviceDetailsResolver,
             JwtService jwtService,
-            PathMatcher pathMatcher
+            PathMatcher pathMatcher,
+            @Qualifier("customAuthenticationEntryPoint") AuthenticationEntryPoint authEntryPoint
     ){
         return new JwtAuthenticationFilter(
+                authEntryPoint,
                 new DefaultBearerTokenResolver(),
                 deviceDetailsResolver,
                 jwtService,

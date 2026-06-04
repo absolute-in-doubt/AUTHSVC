@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -44,12 +44,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleIncorrectServiceCredentialsException(IncorrectServiceCredentialsException ex) {
         log.warn("Incorrect service credentials: {}", ex.getMessage());
         return buildErrorResponse("Invalid service credentials", HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
-        log.warn("Access denied: {}", ex.getMessage());
-        return buildErrorResponse("Access denied", HttpStatus.UNAUTHORIZED);
     }
 
     private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus status) {

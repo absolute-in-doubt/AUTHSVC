@@ -2,6 +2,7 @@ package com.innowise.authservice.infrastructure.security.filter;
 
 import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.security.model.DeviceAuthenticationDetails;
+import com.innowise.authservice.infrastructure.security.exception.CustomAuthenticationEntryPoint;
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
 import jakarta.servlet.FilterChain;
@@ -10,20 +11,24 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.util.Set;
 
 @Slf4j
-//Configured in the SecurityConfig
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final AuthenticationEntryPoint authEntryPoint;
 
     private final BearerTokenResolver tokenResolver;
 
@@ -53,13 +58,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(accessToken == null){
                 log.debug("Access token not found");
-                throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
+                authEntryPoint.commence(request, response,
+                        new InsufficientAuthenticationException("Failed to resolve the access token for private path: " + request.getRequestURI()));
             }
 
             Jwt jwt = jwtService.decode(accessToken);
             if(!jwtService.isTokenValid(jwt)){
                 log.debug("Access token invalid");
-                throw new AccessDeniedException("Failed to resolve the access token for private path: " + request.getRequestURI());
+                authEntryPoint.commence(request, response,
+                        new BadCredentialsException("Failed to resolve the access token for private path: " + request.getRequestURI()));
             }
 
             JwtAuthenticationToken jwtAuthenticationToken = jwtService.convert(jwt);

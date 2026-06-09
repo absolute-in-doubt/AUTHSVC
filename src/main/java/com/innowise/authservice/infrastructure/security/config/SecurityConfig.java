@@ -1,5 +1,6 @@
 package com.innowise.authservice.infrastructure.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innowise.authservice.application.security.service.DeviceDetailsResolver;
 import com.innowise.authservice.application.service.JwtService;
 import com.innowise.authservice.domain.model.Role;
@@ -52,6 +53,11 @@ public class SecurityConfig {
 
     private final SecurityProperties properties;
 
+
+    @Bean
+    public ObjectMapper objectMapper(){
+        return new ObjectMapper();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,

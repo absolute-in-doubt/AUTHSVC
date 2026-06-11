@@ -25,7 +25,7 @@ public class UserServiceClientImpl implements UserServiceClient {
     private String createUserUri;
 
     private static final String AUTH_SERVICE_ID = "auth-service";
-    public static final String USER_SERVICE = "user-service";
+    public static final String USER_SERVICE = "userService";
     private static final AtomicReference<String> jwt = new AtomicReference<>();
 
     private final RestTemplate restTemplate;

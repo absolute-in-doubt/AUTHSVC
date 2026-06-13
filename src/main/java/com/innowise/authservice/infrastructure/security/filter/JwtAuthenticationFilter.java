@@ -48,11 +48,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         DeviceAuthenticationDetails deviceDetails = deviceDetailsResolver.resolve(request);
 
+        log.debug("Retrieved DeviceDetails: {}", deviceDetails);
+
         boolean isPublicPath = publicPathPatterns.stream().anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
         log.debug("Request to {} is public: {}", request.getRequestURI(), isPublicPath);
 
         if (isPublicPath) {
             SecurityContextHolder.getContext().setAuthentication(JwtAuthenticationToken.empty(deviceDetails));
+            log.debug("Loaded JwtAuthenticationToken into the SecurityContext: {}", SecurityContextHolder.getContext().getAuthentication());
         } else {
             String accessToken = tokenResolver.resolve(request);
 

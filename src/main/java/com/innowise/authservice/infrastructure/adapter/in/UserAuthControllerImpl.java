@@ -16,10 +16,12 @@ import com.innowise.authservice.infrastructure.security.model.AuthenticationCont
 import com.innowise.authservice.infrastructure.security.model.JwtAuthenticationToken;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -30,6 +32,7 @@ public class UserAuthControllerImpl implements UserAuthController {
     @Override
     @PostMapping("/register")
     public ResponseEntity<TwoTokensResponseDto> register(@Parameter(hidden = true) @CurrentAuthentication AuthenticationContext authentication, @RequestBody RegisterRequestDto requestDto) throws LoginIsAlreadyTakenException {
+        log.debug("Received the following AuthenticationContext in the UserAuthControllerImpl register(): {}", authentication);
         DeviceAuthenticationDetails deviceDetails = authentication.getDetails();
         TwoTokensResponseDto response = userAuthService.register(requestDto, deviceDetails.ipAddress(), deviceDetails.userAgent());
         return ResponseEntity.ok(response);

@@ -19,7 +19,7 @@ public class CurrentAuthenticationArgumentResolver implements HandlerMethodArgum
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(CurrentAuthentication.class)
-                && Authentication.class.isAssignableFrom(parameter.getParameterType());
+                && AuthenticationContext.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
@@ -29,18 +29,16 @@ public class CurrentAuthenticationArgumentResolver implements HandlerMethodArgum
             NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory
     ) {
-        CurrentAuthentication annotation = parameter.getParameterAnnotation(CurrentAuthentication.class);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.debug("Retrieved the following Authentication form the SecurityContext inside the CurrentAuthentication argument resolver: {}", authentication);
-        
-        Class<? extends Authentication> requiredType = annotation.type();
-        if (requiredType != Authentication.class && !requiredType.isInstance(authentication)) {
-            throw new IllegalStateException(
-                    "CurrentAuthentication requires type " + requiredType.getName() + 
-                    " but found " + (authentication != null ? authentication.getClass().getName() : "null")
-            );
+        log.debug("Retrieved the following Authentication from the SecurityContext inside the CurrentAuthentication argument resolver: {}", authentication);
+
+        if (authentication instanceof AuthenticationContext context) {
+            return context;
         }
-        
-        return authentication;
+
+        throw new IllegalStateException(
+                "Expected AuthenticationContext but found " +
+                (authentication != null ? authentication.getClass().getName() : "null")
+        );
     }
 }

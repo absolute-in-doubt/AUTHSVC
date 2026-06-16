@@ -67,6 +67,8 @@ application:
     services:
       - clientId: ${USRSVC_CLIENT_ID}
         clientSecret: ${USRSVC_CLIENT_SECRET}
+      - clientId: ${ORDERSVC_CLIENT_ID}
+        clientSecret: ${ORDERSVC_CLIENT_SECRET}
   userservice:
     createUserUri: ${USRSVC_CREATE_USER_URI}
   outbox:

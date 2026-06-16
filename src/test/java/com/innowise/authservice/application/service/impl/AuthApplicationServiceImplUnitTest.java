@@ -75,7 +75,7 @@ class AuthApplicationServiceImplUnitTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class)))
+        when(jwtService.createJwt(eq(1L), eq("testuser"), anyList(), any(LocalDateTime.class)))
                 .thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
         when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
@@ -148,7 +148,7 @@ class AuthApplicationServiceImplUnitTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(eq("1"), eq("testuser"), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
+        when(jwtService.createJwt(eq(1L), eq("testuser"), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
         when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
 
@@ -208,7 +208,7 @@ class AuthApplicationServiceImplUnitTest {
             s.setExpiresAt(LocalDateTime.now().plusHours(1));
             return s;
         });
-        when(jwtService.createJwt(anyString(), anyString(), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
+        when(jwtService.createJwt(anyLong(), anyString(), anyList(), any(LocalDateTime.class))).thenReturn(jwt);
         when(jwt.getTokenValue()).thenReturn("accessToken123");
 
         // When

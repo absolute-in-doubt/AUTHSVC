@@ -8,12 +8,14 @@ import com.innowise.authservice.domain.model.Role;
 import com.innowise.authservice.domain.model.exception.IncorrectServiceCredentialsException;
 import com.innowise.authservice.infrastructure.security.config.SecurityProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ServiceAuthApplicationServiceImpl implements ServiceAuthApplicationService {
@@ -28,6 +30,8 @@ public class ServiceAuthApplicationServiceImpl implements ServiceAuthApplication
     @Override
     public AccessTokenResponseDto authenticate(ServiceAuthenticationRequestDto requestDto) throws IncorrectServiceCredentialsException {
 
+        log.info("authenticating {}", requestDto.clientLogin());
+
         SecurityProperties.Service service = serviceCredentials.stream().filter(s -> requestDto.clientId().equals(s.clientId()))
                 .findFirst().orElseThrow(() -> new IncorrectServiceCredentialsException(requestDto.clientId()));
 
@@ -36,7 +40,7 @@ public class ServiceAuthApplicationServiceImpl implements ServiceAuthApplication
 
         String accessToken = jwtService.createJwt(
                 requestDto.clientId(),
-                requestDto.clientId(),
+                requestDto.clientLogin(),
                 List.of(Role.SERVICE),
                 LocalDateTime.now().plusMinutes(serviceSessionLengthMinutes)
         ).getTokenValue();

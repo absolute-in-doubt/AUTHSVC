@@ -76,7 +76,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         ));
 
         String accessToken = jwtService.createJwt(
-                userCredentials.getUserId().toString(),
+                userCredentials.getUserId(),
                 requestDto.login(),
                 roles,
                 session.getExpiresAt()
@@ -116,7 +116,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         sessionRepository.save(session);
 
         String accessToken = jwtService.createJwt(
-                userCredentials.getUserId().toString(),
+                userCredentials.getUserId(),
                 logInRequestDto.login(),
                 userCredentials.getRoles(),
                 session.getExpiresAt()
@@ -140,7 +140,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         sessionRepository.updateRefreshTokenHash(session.getSessionId(), passwordEncoder.encode(newRefreshToken));
 
         String accessToken = jwtService.createJwt(
-                session.getUserId().toString(),
+                session.getUserId(),
                 userCredentials.getLogin(),
                 userCredentials.getRoles(),
                 session.getExpiresAt()

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface JwtService {
 
-    Jwt createJwt(String userId, String login, List<Role> roles, LocalDateTime sessionExpiresAt);
+    Jwt createJwt(Long userId, String login, List<Role> roles, LocalDateTime sessionExpiresAt);
 
     Jwt decode(String jwt);
 

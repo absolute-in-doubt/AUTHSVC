@@ -35,9 +35,11 @@ class ServiceAuthApplicationServiceImplUnitTest {
     @InjectMocks
     private ServiceAuthApplicationServiceImpl serviceAuthApplicationService;
 
-    private static final String VALID_CLIENT_ID = "service-client";
+    private static final Long VALID_CLIENT_ID = 234L;
+    private static final String VALID_CLIENT_LOGIN = "service-client";
     private static final String VALID_CLIENT_SECRET = "service-secret";
-    private static final String INVALID_CLIENT_ID = "unknown-client";
+    private static final Long INVALID_CLIENT_ID = 1234L;
+    private static final String INVALID_CLIENT_LOGIN = "unknown-client";
     private static final String WRONG_CLIENT_SECRET = "wrong-secret";
     private static final String ACCESS_TOKEN = "access.token.value";
     private static final int SERVICE_SESSION_LENGTH_MINUTES = 60;
@@ -54,11 +56,13 @@ class ServiceAuthApplicationServiceImplUnitTest {
     void authenticate_whenValidCredentialsProvided_shouldReturnAccessToken() throws IncorrectServiceCredentialsException {
         ServiceAuthenticationRequestDto requestDto = new ServiceAuthenticationRequestDto(
                 VALID_CLIENT_ID,
+                VALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
         SecurityProperties.Service mockService = new SecurityProperties.Service(
                 VALID_CLIENT_ID,
+                VALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
@@ -70,7 +74,7 @@ class ServiceAuthApplicationServiceImplUnitTest {
         when(mockJwt.getTokenValue()).thenReturn(ACCESS_TOKEN);
         when(jwtService.createJwt(
                 eq(VALID_CLIENT_ID),
-                eq(VALID_CLIENT_ID),
+                eq(VALID_CLIENT_LOGIN),
                 anyList(),
                 any(LocalDateTime.class)
         )).thenReturn(mockJwt);
@@ -81,7 +85,7 @@ class ServiceAuthApplicationServiceImplUnitTest {
         assertEquals(ACCESS_TOKEN, result.accessToken());
         verify(jwtService).createJwt(
                 eq(VALID_CLIENT_ID),
-                eq(VALID_CLIENT_ID),
+                eq(VALID_CLIENT_LOGIN),
                 eq(List.of(Role.SERVICE)),
                 any(LocalDateTime.class)
         );
@@ -93,11 +97,13 @@ class ServiceAuthApplicationServiceImplUnitTest {
         // Arrange
         ServiceAuthenticationRequestDto requestDto = new ServiceAuthenticationRequestDto(
                 INVALID_CLIENT_ID,
+                INVALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
         SecurityProperties.Service mockService = new SecurityProperties.Service(
                 VALID_CLIENT_ID,
+                INVALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
@@ -122,11 +128,13 @@ class ServiceAuthApplicationServiceImplUnitTest {
     void authenticate_whenIncorrectClientSecretProvided_shouldThrowException() {
         ServiceAuthenticationRequestDto requestDto = new ServiceAuthenticationRequestDto(
                 VALID_CLIENT_ID,
+                VALID_CLIENT_LOGIN,
                 WRONG_CLIENT_SECRET
         );
 
         SecurityProperties.Service mockService = new SecurityProperties.Service(
                 VALID_CLIENT_ID,
+                VALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
@@ -152,15 +160,18 @@ class ServiceAuthApplicationServiceImplUnitTest {
     void authenticate_whenMultipleServicesExistAndCredentialsValid_shouldReturnAccessToken() throws IncorrectServiceCredentialsException {
         ServiceAuthenticationRequestDto requestDto = new ServiceAuthenticationRequestDto(
                 VALID_CLIENT_ID,
+                VALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
         SecurityProperties.Service firstService = new SecurityProperties.Service(
+                213L,
                 "other-client",
                 "other-secret"
         );
         SecurityProperties.Service secondService = new SecurityProperties.Service(
                 VALID_CLIENT_ID,
+                INVALID_CLIENT_LOGIN,
                 VALID_CLIENT_SECRET
         );
 
@@ -172,7 +183,7 @@ class ServiceAuthApplicationServiceImplUnitTest {
         when(mockJwt.getTokenValue()).thenReturn(ACCESS_TOKEN);
         when(jwtService.createJwt(
                 eq(VALID_CLIENT_ID),
-                eq(VALID_CLIENT_ID),
+                eq(VALID_CLIENT_LOGIN),
                 anyList(),
                 any(LocalDateTime.class)
         )).thenReturn(mockJwt);
@@ -183,7 +194,7 @@ class ServiceAuthApplicationServiceImplUnitTest {
         assertEquals(ACCESS_TOKEN, result.accessToken());
         verify(jwtService).createJwt(
                 eq(VALID_CLIENT_ID),
-                eq(VALID_CLIENT_ID),
+                eq(VALID_CLIENT_LOGIN),
                 eq(List.of(Role.SERVICE)),
                 any(LocalDateTime.class)
         );

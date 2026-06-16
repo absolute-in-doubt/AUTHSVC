@@ -35,7 +35,8 @@ public record SecurityProperties(
     ) {}
 
     public record Service(
-            String clientId,
+            Long clientId,
+            String clientLogin,
             String clientSecret
     ) {}
 }

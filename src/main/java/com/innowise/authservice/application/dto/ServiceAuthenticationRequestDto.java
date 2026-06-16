@@ -1,7 +1,8 @@
 package com.innowise.authservice.application.dto;
 
 public record ServiceAuthenticationRequestDto(
-        String clientId,
+        Long clientId,
+        String clientLogin,
         String clientSecret
 ) {
 }

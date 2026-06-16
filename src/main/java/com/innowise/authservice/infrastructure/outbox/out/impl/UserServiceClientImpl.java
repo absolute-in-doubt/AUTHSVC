@@ -24,7 +24,8 @@ public class UserServiceClientImpl implements UserServiceClient {
     @Value("${application.userservice.createUserUri}")
     private String createUserUri;
 
-    private static final String AUTH_SERVICE_ID = "auth-service";
+    private static final Long AUTH_SERVICE_ID = 143L;
+    private static final String AUTH_SERVICE_LOGIN = "auth-service";
     public static final String USER_SERVICE = "userService";
     private static final AtomicReference<String> jwt = new AtomicReference<>();
 
@@ -36,7 +37,7 @@ public class UserServiceClientImpl implements UserServiceClient {
         //session expiresAt is set to one year, so that jwt is lifetime isn't limited by session ending
         jwt.set(jwtService.createJwt(
                         AUTH_SERVICE_ID,
-                        AUTH_SERVICE_ID,
+                        AUTH_SERVICE_LOGIN,
                         List.of(Role.SERVICE),
                         LocalDateTime.now().plusYears(1))
                 .getTokenValue());

@@ -141,7 +141,7 @@ class AuthApplicationServiceImplUnitTest {
 
         when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
-        when(sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)).thenReturn(Optional.empty());
+        when(sessionRepository.findByUserIdAndIpAddressAndUserAgentAndActiveTrue(1L, ipAddress, userAgent)).thenReturn(Optional.empty());
         when(sessionRepository.save(any(Session.class))).thenAnswer(inv -> {
             Session s = inv.getArgument(0);
             s.setSessionId(1L);
@@ -200,7 +200,7 @@ class AuthApplicationServiceImplUnitTest {
 
         when(userCredentialsRepository.findByLogin("testuser")).thenReturn(Optional.of(userCredentials));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
-        when(sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)).thenReturn(Optional.of(existingSession));
+        when(sessionRepository.findByUserIdAndIpAddressAndUserAgentAndActiveTrue(1L, ipAddress, userAgent)).thenReturn(Optional.of(existingSession));
         when(hashManager.hash(anyString())).thenReturn("refreshTokenHashValue");
         when(sessionRepository.save(any(Session.class))).thenAnswer(inv -> {
             Session s = inv.getArgument(0);

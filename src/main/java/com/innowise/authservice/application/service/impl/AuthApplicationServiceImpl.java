@@ -101,7 +101,7 @@ public class AuthApplicationServiceImpl implements AuthApplicationService {
         if(!passwordEncoder.matches(logInRequestDto.password(), userCredentials.getPasswordHash()))
             throw new IncorrectLoginOrPasswordException(logInRequestDto.login());
 
-        sessionRepository.findByIpAddressAndUserAgentAndActiveTrue(ipAddress, userAgent)
+        sessionRepository.findByUserIdAndIpAddressAndUserAgentAndActiveTrue(userCredentials.getUserId(), ipAddress, userAgent)
                 .ifPresent(existingSession -> sessionRepository.setActive(existingSession.getSessionId(), false));
 
 

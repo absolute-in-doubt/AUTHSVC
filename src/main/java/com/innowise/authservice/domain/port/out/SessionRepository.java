@@ -13,8 +13,8 @@ import java.util.Optional;
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Long> {
 
-    @Query("SELECT s FROM Session s WHERE s.ipAddress = :ipAddress and s.userAgent = :userAgent and s.active = true")
-    Optional<Session> findByIpAddressAndUserAgentAndActiveTrue(@Param("ipAddress") String ipAddress, @Param("userAgent") String userAgent);
+    @Query("SELECT s FROM Session s WHERE s.userId = :userId s.ipAddress = :ipAddress and s.userAgent = :userAgent and s.active = true")
+    Optional<Session> findByUserIdAndIpAddressAndUserAgentAndActiveTrue(@Param("userId") Long userId, @Param("ipAddress") String ipAddress, @Param("userAgent") String userAgent);
 
     @Modifying
     @Query("UPDATE Session SET active = :active WHERE sessionId = :sessionId")

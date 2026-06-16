@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: 'authsvc_authservice'
     build: .
     env_file:
       - app.env
@@ -12,7 +13,7 @@ services:
       - userservice
 
   postgres-2:
-    container_name: 'authservice_postgres'
+    container_name: 'authsvc_authservice_postgres'
     image: 'postgres:15'
     env_file:
       - postgres.env
@@ -25,12 +26,12 @@ services:
     image: 'ghcr.io/absolute-in-doubt/usrsvc:latest'
     pull_policy: always
     environment:
-      - POSTGRES_URL=jdbc:postgresql://userservice_postgres:5432/user_service_db
+      - POSTGRES_URL=jdbc:postgresql://authsvc_userservice_postgres:5432/user_service_db
       - POSTGRES_PASSWORD=secret
       - POSTGRES_USER=myuser
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - JWKS_URL=http://authservice_postgres:8081/.well-known/jwks.json
+      - JWKS_URL=http://authsvc_authservice:8081/.well-known/jwks.json
     ports:
       - "8080:8080"
     depends_on:
@@ -38,7 +39,7 @@ services:
       - redis
 
   postgres-1:
-    container_name: 'userservice_postgres'
+    container_name: 'authsvc_userservice_postgres'
     image: 'postgres:15'
     environment:
       - POSTGRES_DB=user_service_db

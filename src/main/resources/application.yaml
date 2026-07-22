@@ -46,6 +46,7 @@ application:
         - /api/v1/auth/service/authenticate
         - /.well-known/*
         - /actuator/health
+        - /actuator/health/**
       userPaths:
         - /api/v1/auth/logout
         - /api/v1/auth/validate

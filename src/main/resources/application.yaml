@@ -45,6 +45,7 @@ application:
         - /v3/api-docs
         - /api/v1/auth/service/authenticate
         - /.well-known/*
+        - /actuator/health
       userPaths:
         - /api/v1/auth/logout
         - /api/v1/auth/validate
@@ -73,6 +74,12 @@ application:
     createUserUri: ${USRSVC_CREATE_USER_URI}
   outbox:
     workerRetriesThreshold: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 resilience4j:
   circuitbreaker:

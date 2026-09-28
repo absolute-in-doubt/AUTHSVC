@@ -1,0 +1,112 @@
+spring:
+  application:
+    name: autservice
+  task:
+    scheduling:
+      poolSize: 10
+      threadNamePrefix: scheduling-
+      shutdown:
+        awaitTerminationPeriodSeconds: 180
+      outboxRetryWorker:
+        rateMillis: 100
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    oauth2RedirectUrl: /swagger-ui/oauth2-redirect.html
+
+server:
+  port: 8081
+
+application:
+  security:
+    hmacSecret: ${HMAC_SECRET}
+    sessionLengthMinutes: 10080
+    serviceJwtLifeMinutes: 180
+    jwtLifeMinutes: 180
+    paths:
+      publicPaths:
+        - /api/v1/auth/login
+        - /api/v1/auth/register
+        - /api/v1/auth/refresh
+        - /v3/api-docs.yaml
+        - /swagger-ui/*
+        - /swagger-ui.html
+        - /v3/api-docs/*
+        - /v3/api-docs
+        - /api/v1/auth/service/authenticate
+        - /.well-known/*
+        - /actuator/health
+        - /actuator/health/**
+      userPaths:
+        - /api/v1/auth/logout
+        - /api/v1/auth/validate
+      adminPaths:
+        - /api/v1/auth/admin/session/*
+        - /api/v1/auth/admin/register
+    jwks:
+      - kid: ${JWK_ID}
+        kty: ${JWK_TYPE}
+        alg: ${JWK_ALG}
+        use: "sig"
+        n: ${JWK_N}
+        e: ${JWK_E}
+        d: ${JWK_D}
+        p: ${JWK_P}
+        q: ${JWK_Q}
+        dp: ${JWK_DP}
+        dq: ${JWK_DQ}
+        qi: ${JWK_QI}
+    services:
+      - clientId: ${USRSVC_CLIENT_ID}
+        clientSecret: ${USRSVC_CLIENT_SECRET}
+      - clientId: ${ORDERSVC_CLIENT_ID}
+        clientSecret: ${ORDERSVC_CLIENT_SECRET}
+  userservice:
+    createUserUri: ${USRSVC_CREATE_USER_URI}
+  outbox:
+    workerRetriesThreshold: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        slow-call-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+
+
+  retry:
+    instances:
+      userService:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException

@@ -1,8 +1,18 @@
 package com.innowise.authservice;
 
+import com.innowise.authservice.application.dto.RegisterRequestDto;
+import com.innowise.authservice.application.service.AuthApplicationService;
+import com.innowise.authservice.domain.model.Role;
+import com.innowise.authservice.domain.model.UserCredentials;
+import com.innowise.authservice.domain.port.out.UserCredentialsRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @SpringBootApplication
@@ -32,5 +42,31 @@ public class AuthServiceApplication {
 	User service:
 	1. Implement basic security
 	2. Implement outbox for the auth service user credentials activation/deactivation
+	 */
+
+	@Bean
+	public ApplicationRunner adminInit(UserCredentialsRepository userCredentialsRepository, AuthApplicationService authApplicationService){
+		return (args) -> {
+
+			if(userCredentialsRepository.findAll().stream().noneMatch(uc -> uc.getRoles().contains(Role.ADMIN))){
+				authApplicationService.registerAdmin(new RegisterRequestDto(
+						"admin",
+						"root_passwd",
+						"admin",
+						"admin",
+						LocalDate.now().minus(20, ChronoUnit.YEARS),
+						"admin@gmail.com"
+				));
+			}
+		};
+	}
+
+	/*
+	    @NotBlank @Size(min = 5,max = 20) String login,
+        @NotBlank @Size(min = 6,max = 35) String password,
+        @NotBlank @Size(max = 100) String firstName,
+        @NotBlank @Size(max = 100) String lastName,
+        @Past LocalDate birthDate,
+        @NotBlank @Email String email
 	 */
 }
